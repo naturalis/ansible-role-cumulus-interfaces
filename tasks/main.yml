@@ -50,7 +50,7 @@
     backup: yes
   when:
     - env == "prod"
-    - "'spine' in group_names"
+    - "'leaf' in group_names"
   notify: load PoE config
   tags:
     - interfaces
