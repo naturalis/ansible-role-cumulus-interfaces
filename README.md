@@ -1,6 +1,11 @@
-# Ansible Role: Cumulus ..
+# Ansible Role: Cumulus interfaces
 
-..
+Used in [network](https://github.com/naturalis/network/) repo.
+
+Runnable with:
+```bash
+ansible-playbook playbooks/cumulus_interfaces.yml -i environments/prod
+```
 
 ## Requirements
 
@@ -10,9 +15,9 @@ None.
 
 Available variables are listed below, along with default values (see `defaults/main.yml`):
 
-    ..
-
-
+```bash
+..
+```
 
 ## Dependencies
 
@@ -22,7 +27,7 @@ None.
 
     - hosts: switches
       roles:
-        - { role: test }
+        - ansible-role-cumulus-interfaces
 
 ## License
 

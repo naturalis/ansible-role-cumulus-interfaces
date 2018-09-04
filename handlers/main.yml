@@ -11,3 +11,6 @@
 
 - name: reload networking
   command: "ifreload -a"
+
+- name: load PoE config
+  command: "poectl --load"
