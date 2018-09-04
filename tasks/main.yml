@@ -4,7 +4,7 @@
     src: daemons
     dest: /etc/frr/daemons
     backup: yes
-  when: "'spine' in group_names"
+  when: "'spine|uplink' in group_names"
   notify: restart frr
   tags:
     - frr
@@ -14,7 +14,7 @@
     src: spine_frr.j2
     dest: /etc/frr/frr.conf
     backup: yes
-  when: "'spine' in group_names"
+  when: "'spine|uplink' in group_names"
   notify:
     - reload networking
     - reload frr
@@ -27,7 +27,7 @@
     dest: /etc/network/interfaces
     validate: ifup -a -s -i %s
     backup: yes
-  when: "'spine' in group_names"
+  when: "'spine|uplink' in group_names"
   notify: reload networking
   tags:
     - interfaces
