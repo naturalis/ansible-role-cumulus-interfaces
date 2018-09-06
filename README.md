@@ -7,6 +7,8 @@ Runnable with:
 ansible-playbook playbooks/cumulus_interfaces.yml -i environments/prod
 ```
 
+This role will setup OSPF (FRR) on spine (and uplink) switches. Also the interfaces will be configured and PoE will be configured on leaf switches.
+
 ## Requirements
 
 None.
@@ -18,6 +20,27 @@ Available variables are listed below, along with default values (see `defaults/m
 An example would be:
 
 ```bash
+routing:
+  ospf:
+    network: 145.136.246.224/29
+    fw-carp-address: 145.136.246.232
+    static-routes:
+    - 10.141.0.0/16
+    - 10.142.0.0/16
+
+general:
+  vlans:
+    114:
+      name: Management
+      ipv4-virtual: 10.114.0.1/24
+      ipv4-1: 10.114.0.2/24
+      ipv4-2: 10.114.0.3/24
+    115:
+      name: Servers
+      ipv4-virtual: 10.115.0.1/24
+      ipv4-1: 10.115.0.2/24
+      ipv4-2: 10.115.0.3/24
+
 node:
   netdw2-spine-a:
     lo: 10.255.255.1/32
