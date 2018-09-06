@@ -21,7 +21,7 @@
   tags:
     - frr
 
-- name: Copy interfaces configuration
+- name: Copy interfaces configuration for uplink
   template:
     src: uplink_interfaces.j2
     dest: /etc/network/interfaces
@@ -32,7 +32,7 @@
   tags:
     - interfaces
 
-- name: Copy interfaces configuration
+- name: Copy interfaces configuration for spines
   template:
     src: spine_interfaces.j2
     dest: /etc/network/interfaces
@@ -43,7 +43,7 @@
   tags:
     - interfaces
 
-- name: Copy interfaces configuration
+- name: Copy interfaces configuration for leafs
   template:
     src: leaf_interfaces.j2
     dest: /etc/network/interfaces
