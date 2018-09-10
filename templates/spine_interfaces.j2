@@ -66,14 +66,15 @@ iface peerlink.4094
 {% for svi in general["vlans"] -%}
 auto vlan{{svi}}
 iface vlan{{svi}}
-    {% if node[inventory_hostname]["mlag"]["primary"] == "true" %}
-    address {{general["vlans"][svi]["ipv4-1"]}}
-    {% else %}
-    address {{general["vlans"][svi]["ipv4-2"]}}
-    {% endif %}
-    vlan-id {{svi}}
-    vlan-raw-device bridge
-    address-virtual 00:00:5e:00:01:01 {{general["vlans"][svi]["ipv4-virtual"]}}
+  {% if node[inventory_hostname]["mlag"]["primary"] == "true" %}
+  address {{general["vlans"][svi]["ipv4-1"]}}
+  {% else %}
+  address {{general["vlans"][svi]["ipv4-2"]}}
+  {% endif %}
+  vlan-id {{svi}}
+  vlan-raw-device bridge
+  address-virtual 00:00:5e:00:01:01 {{general["vlans"][svi]["ipv4-virtual"]}}
+
 {% endfor %}
 {% endif %}
 
@@ -132,5 +133,6 @@ auto {{port}}
 iface {{port}}
   mtu 9000
   bridge-pvid {{ node[inventory_hostname]["ospf"]["lnk-vlan"] }}
+
 {% endfor %}
 {% endif %}

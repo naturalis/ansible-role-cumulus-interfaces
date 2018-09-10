@@ -53,5 +53,6 @@ auto {{port}}
 iface {{port}}
   mtu 9000
   bridge-pvid {{ node[inventory_hostname]["ospf"]["lnk-vlan"] }}
+
 {% endfor %}
 {% endif %}
