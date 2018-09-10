@@ -27,7 +27,7 @@ iface bridge
   bridge-vlan-aware yes
   bridge-ports {{ node[inventory_hostname]["ports"] | join(" ") }} peerlink
   bridge-vids {{ general["vlans"] | join(" ") }}
-  
+
   {% if node[inventory_hostname]["bridge"]is defined %}
   bridge-pvid {{ node[inventory_hostname]["bridge"]["native"] }}
   bridge-stp on
@@ -95,5 +95,6 @@ iface {{port}}
   {% else %}
   bridge-access {{ node[inventory_hostname]["ports"][port]["vlan"] }}
   {% endif %}
+
 {% endfor %}
 {% endif %}

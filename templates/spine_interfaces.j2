@@ -113,12 +113,11 @@ iface {{port}}
   {% else %}
   bridge-access {{ node[inventory_hostname]["ports"][port]["vlan"] }}
   {% endif %}
-  
+
 {% endfor %}
 {% endif %}
 
 {% if node[inventory_hostname]["ospf"] is defined %}
-
 ###############
 # OSPF ports
 ###############
