@@ -113,6 +113,7 @@ iface {{port}}
   {% else %}
   bridge-access {{ node[inventory_hostname]["ports"][port]["vlan"] }}
   {% endif %}
+  
 {% endfor %}
 {% endif %}
 
