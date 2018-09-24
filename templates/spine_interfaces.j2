@@ -59,6 +59,7 @@ iface peerlink.4094
   clagd-args --initDelay 180
 {% endif %}
 
+{% if node[inventory_hostname]["svi"] is defined %}
 ###############
 # SVIs
 ###############
@@ -77,7 +78,7 @@ iface vlan{{svi}}
 
 {% endfor %}
 {% endif %}
-
+{% endif %}
 ###############
 # Client ports
 ###############
