@@ -85,7 +85,7 @@ None.
 
     - hosts: switches
       roles:
-        - ansible-role-cumulus-interfaces
+        - ansible-cumulus-interfaces
 
 ## License
 
