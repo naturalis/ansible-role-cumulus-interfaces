@@ -59,7 +59,7 @@ iface peerlink.4094
   clagd-args --initDelay 180
 {% endif %}
 
-{% if node[inventory_hostname]["svi"] is defined %}
+{% if node[inventory_hostname]["svi"] == true %}
 ###############
 # SVIs
 ###############
