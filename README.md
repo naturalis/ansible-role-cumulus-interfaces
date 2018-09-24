@@ -49,6 +49,7 @@ node:
       lnk-vlan: 269
       members:
       - swp47
+    svi: false
     mlag:
       primary: true
       members:
