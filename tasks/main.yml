@@ -54,6 +54,28 @@
   tags:
     - interfaces
 
+- name: start cumulus-poe
+  systemd:
+    name: cumulus-poe
+    state: started
+  when:
+    - env == "prod"
+    - "'leaf' in group_names"
+  notify: restart poe
+  tags:
+   - interfaces
+
+- name: enable cumulus-poe
+  systemd:
+    enabled: yes
+    name: cumulus-poe
+  when:
+    - env == "prod"
+    - "'leaf' in group_names"
+  notify: restart poe
+  tags:
+   - interfaces
+
 #- name: Copy PoE configuration
 #  template:
 #    src: leaf_poe.conf

@@ -12,5 +12,9 @@
 - name: reload networking
   command: "ifreload -a"
 
-- name: load PoE config
-  command: "poectl --load"
+- name: restart poe
+  service:
+    name: cumulus-poe
+    enabled: yes
+    state: restarted
+    daemon_reload: yes
