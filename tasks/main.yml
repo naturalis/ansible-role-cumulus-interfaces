@@ -76,14 +76,14 @@
   tags:
    - interfaces
 
-#- name: Copy PoE configuration
-#  template:
-#    src: leaf_poe.conf
-#    dest: /etc/lldpd.d/poed.conf
-#    backup: yes
-#  when:
-#    - env == "prod"
-#    - "'leafs' in group_names"
-#  notify: load PoE config
-#  tags:
-#    - interfaces
+- name: Copy PoE configuration
+  template:
+    src: leaf_poe.j2
+    dest: /etc/cumulus/poe.conf
+    backup: yes
+  when:
+    - env == "prod"
+    - "'leafs' in group_names"
+  notify: restart poe
+  tags:
+    - interfaces
