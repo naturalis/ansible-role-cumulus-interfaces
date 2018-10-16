@@ -25,7 +25,7 @@ iface mgmt
 auto bridge
 iface bridge
   bridge-vlan-aware yes
-  bridge-ports {{ node[inventory_hostname]["ports"] | join(" ") }} peerlink
+  bridge-ports {{ node[inventory_hostname]["ports"] | join(" ") }} peerlink glob swp1-48
   bridge-vids {{ general["vlans"] | join(" ") }}
 
   {% if node[inventory_hostname]["bridge"]is defined %}
