@@ -20,6 +20,7 @@ Available variables are listed below, along with default values (see `defaults/m
 An example would be:
 
 ```bash
+#group_vars
 routing:
   ospf:
     network: 145.136.246.224/29
@@ -39,7 +40,9 @@ vlans:
     ipv4-virtual: 10.115.0.1/24
     ipv4-1: 10.115.0.2/24
     ipv4-2: 10.115.0.3/24
-
+```    
+```bash
+#host_vars
 lo: 10.255.255.1/32
 ospf:
   router-id: 145.136.246.218
