@@ -11,8 +11,8 @@
 [priority]
 {% for port in range(1,49) %}
 {% set port_name = 'swp' + port|string %}
-{% if node[inventory_hostname]["ports"][port_name] is defined %}
-{{ port_name }} = {{ node[inventory_hostname]["ports"][port_name]["poe_prio"] | default('low') }}
+{% if ports[port_name] is defined %}
+{{ port_name }} = {{ ports[port_name]["poe_prio"] | default('low') }}
 {% else %}
 {{ port_name }} = low
 {% endif %}

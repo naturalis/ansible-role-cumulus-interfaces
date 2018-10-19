@@ -7,7 +7,7 @@
 ###############
 auto lo
 iface lo inet loopback
-   address {{node[inventory_hostname]["lo"]}}
+   address {{ lo ]}}
 
 auto eth0
 iface eth0 inet dhcp
@@ -25,35 +25,45 @@ iface mgmt
 auto bridge
 iface bridge
   bridge-vlan-aware yes
-  bridge-ports {{ node[inventory_hostname]["ports"] | join(" ") }} peerlink glob swp1-48
-  bridge-vids {{ general["vlans"] | join(" ") }}
+  bridge-ports {{ ports | join(" ") }} peerlink glob swp1-48
+  bridge-vids {{ vlans | join(" ") }}
 
-  {% if node[inventory_hostname]["bridge"]is defined %}
-  bridge-pvid {{ node[inventory_hostname]["bridge"]["native"] }}
+  {% if bridge is defined %}
+  bridge-pvid {{ bridge["native"] }}
   bridge-stp on
-  {% if node[inventory_hostname]["bridge"]["priority"] is defined %}
-  mstpctl-treeprio {{ node[inventory_hostname]["bridge"]["priority"] }}
+  {% if bridge["priority"] is defined %}
+  mstpctl-treeprio {{ bridge["priority"] }}
   {% endif %}
   {% endif %}
+
+###############
+# In band mgmt
+###############
+
+auto vlan{{ ib_mgmt }}
+iface vlan{{ib_mgmt}}
+  address 10.{{ ib_mgmt }}.0.{{ lo | regex_replace('^10.255.255.(.*)$', '\\1') }}
+  vlan-id {{ ib_mgmt }}
+  vlan-raw-device bridge
 
 ###############
 # MLAG
 ###############
 
-{% if node[inventory_hostname]["mlag"] is defined %}
+{% if mlag is defined %}
 auto peerlink
 iface peerlink
-  bond-slaves {{ node[inventory_hostname]["mlag"]["members"] | join(" ") }}
+  bond-slaves {{ mlag["members"] | join(" ") }}
   mtu 9216
 
 auto peerlink.4094
 iface peerlink.4094
-  address {{ node[inventory_hostname]["mlag"]["address"] }}
-  clagd-peer-ip {{ node[inventory_hostname]["mlag"]["peer-ip"] }}
-  clagd-backup-ip {{ node[inventory_hostname]["mlag"]["backup-ip"] }} vrf mgmt
-  clagd-sys-mac {{ node[inventory_hostname]["mlag"]["sysmac"] }}
-  {% if node[inventory_hostname]["mlag"]["priority"] is defined %}
-  clagd-priority {{ node[inventory_hostname]["mlag"]["priority"] }}
+  address {{ mlag["address"] }}
+  clagd-peer-ip {{ mlag["peer-ip"] }}
+  clagd-backup-ip {{ mlag["backup-ip"] }} vrf mgmt
+  clagd-sys-mac {{ mlag["sysmac"] }}
+  {% if mlag["priority"] is defined %}
+  clagd-priority {{ mlag["priority"] }}
   {% endif %}
 {% endif %}
 
@@ -61,55 +71,55 @@ iface peerlink.4094
 # Client ports
 ###############
 
-{% if node[inventory_hostname]["ports"] is defined %}
-{% for port in node[inventory_hostname]["ports"] -%}
+{% if ports is defined %}
+{% for port in ports -%}
 
-{% if node[inventory_hostname]["ports"][port]["mlag"] %}
-{% for member in node[inventory_hostname]["ports"][port]["members"] -%}
-auto {{member}}
-iface {{member}}
+{% if ports[port]["mlag"] %}
+{% for member in ports[port]["members"] -%}
+auto {{ member }}
+iface {{ member }}
 {% endfor %}
 {% endif %}
 
-auto {{port}}
-iface {{port}}
-  {% if node[inventory_hostname]["ports"][port]["mtu"] is defined %}
-  mtu {{node[inventory_hostname]["ports"][port]["mtu"]}}
+auto {{ port }}
+iface {{ port }}
+  {% if ports[port]["mtu"] is defined %}
+  mtu {{ ports[port]["mtu"] }}
   {% else %}
   mtu 9000
   {% endif %}
-  {% if node[inventory_hostname]["ports"][port]["alias"] is defined %}
-  alias {{ node[inventory_hostname]["ports"][port]["alias"] }}
+  {% if ports[port]["alias"] is defined %}
+  alias {{ ports[port]["alias"] }}
   {% endif %}
-  {% if node[inventory_hostname]["ports"][port]["mlag"] %}
-  clag-id {{ node[inventory_hostname]["ports"][port]["mlag-id"] }}
-  bond-slaves {{ node[inventory_hostname]["ports"][port]["members"] | join(" ") }}
+  {% if ports[port]["mlag"] %}
+  clag-id {{ ports[port]["mlag-id"] }}
+  bond-slaves {{ ports[port]["members"] | join(" ") }}
   {% else %}
   mstpctl-bpduguard yes
   mstpctl-portadminedge yes
   {% endif %}
-  {% if node[inventory_hostname]["ports"][port]["trunk"] %}
-  {% if node[inventory_hostname]["ports"][port]["vlans"] is defined %}
-  bridge-vids {{ node[inventory_hostname]["ports"][port]["vlans"] | join(" ") }}
+  {% if ports[port]["trunk"] %}
+  {% if ports[port]["vlans"] is defined %}
+  bridge-vids {{ ports[port]["vlans"] | join(" ") }}
   {% endif %}
-  {% if node[inventory_hostname]["ports"][port]["voip"] is defined %}
-  bridge-pvid {{ node[inventory_hostname]["ports"][port]["voip"]["data-vlan"] }}
-  bridge-vids {{ node[inventory_hostname]["ports"][port]["voip"]["voice-vlan"] }}
+  {% if ports[port]["voip"] is defined %}
+  bridge-pvid {{ ports[port]["voip"]["data-vlan"] }}
+  bridge-vids {{ ports[port]["voip"]["voice-vlan"] }}
   {% endif %}
   {% else %}
-  bridge-access {{ node[inventory_hostname]["ports"][port]["vlan"] }}
+  bridge-access {{ ports[port]["vlan"] }}
   {% endif %}
 
 {% endfor %}
 
 {% for port in range(1,49) %}
 {% set port_name = 'swp' + port|string %}
-{% if node[inventory_hostname]["ports"][port_name] is undefined %}
-auto {{port_name}}
-iface {{port_name}}
+{% if ports[port_name] is undefined %}
+auto {{ port_name }}
+iface {{ port_name }}
   mstpctl-bpduguard yes
   mstpctl-portadminedge yes
-  bridge-access {{ node[inventory_hostname]["bridge"]["native"] }}
+  bridge-access {{ bridge["native"] }}
 {% endif %}
 {% endfor %}
 

@@ -7,14 +7,14 @@ service integrated-vtysh-config
 !
 log syslog informational
 !
-{% if node[inventory_hostname]["ospf"] is defined %}
+{% if ospf is defined %}
 router ospf
-  ospf router-id {{ node[inventory_hostname]["ospf"]["router-id"] }}
+  ospf router-id {{ ospf["router-id"] }}
   network {{ routing["ospf"]["network"] }} area 0.0.0.0
   passive-interface default
-  no passive-interface vlan{{ node[inventory_hostname]["ospf"]["lnk-vlan"] }}
-  {% for member in node[inventory_hostname]["ospf"]["members"] -%}
-  no passive-interface {{member}}
+  no passive-interface vlan{{ ospf["lnk-vlan"] }}
+  {% for member in ospf["members"] -%}
+  no passive-interface {{ member }}
   {% endfor %}
   log-adjacency-changes detail
   auto-cost reference-bandwidth 100000
@@ -23,8 +23,8 @@ router ospf
 !
 ip forwarding
 !
-{% for route in general["vlans"] -%}
-ip route 10.{{route}}.0.0/16 {{routing["ospf"]["fw-carp-address"]}}
+{% for route in vlans -%}
+ip route 10.{{route}}.0.0/16 {{ routing["ospf"]["fw-carp-address"] }}
 {% endfor %}
 {% if routing["ospf"]["static-routes"] is defined %}
 {% for route in routing["ospf"]["static-routes"] -%}
@@ -32,7 +32,7 @@ ip route {{route}} {{routing["ospf"]["fw-carp-address"]}}
 {% endfor %}
 {% endif %}
 !
-interface vlan{{ node[inventory_hostname]["ospf"]["lnk-vlan"] }}
+interface vlan{{ ospf["lnk-vlan"] }}
  ip ospf network point-to-point
 {% endif %}
 !
