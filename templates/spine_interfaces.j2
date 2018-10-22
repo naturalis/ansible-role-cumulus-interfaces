@@ -69,26 +69,6 @@ iface peerlink.4094
   clagd-args --initDelay 180
 {% endif %}
 
-{% if svi == true %}
-###############
-# SVIs
-###############
-{% if mlag is defined %}
-{% for svi in vlans -%}
-auto vlan{{ svi }}
-iface vlan{{ svi }}
-  {% if mlag["primary"] == "true" %}
-  address {{ vlans[svi]["ipv4-1"] }}
-  {% else %}
-  address {{ vlans[svi]["ipv4-2"] }}
-  {% endif %}
-  vlan-id {{ svi }}
-  vlan-raw-device bridge
-  address-virtual 00:00:5e:00:01:01 {{ vlans[svi]["ipv4-virtual"] }}
-
-{% endfor %}
-{% endif %}
-{% endif %}
 ###############
 # Client ports
 ###############
