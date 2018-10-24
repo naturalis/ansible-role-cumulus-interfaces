@@ -83,11 +83,7 @@ iface {{ member }}
 
 auto {{ port }}
 iface {{ port }}
-  {% if ports[port]["mtu"] is defined %}
-  mtu {{ ports[port]["mtu"] }}
-  {% else %}
   mtu 9000
-  {% endif %}
   {% if ports[port]["alias"] is defined %}
   alias {{ ports[port]["alias"] }}
   {% endif %}
