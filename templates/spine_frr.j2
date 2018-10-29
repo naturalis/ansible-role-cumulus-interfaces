@@ -13,7 +13,7 @@ router ospf
   log-adjacency-changes detail
   timers throttle spf 5 100 500
   timers lsa min-arrival 50
-  network {{ routing["ospf"]["network"]/29 }} area 0
+  network {{ routing["ospf"]["network"] }} area 0
   redistribute kernel
   redistribute static
   redistribute connected

@@ -110,7 +110,7 @@ iface {{ port }}
 
 auto vlan{{ ospf["lnk-vlan"] }}
 iface vlan{{ ospf["lnk-vlan"] }}
-  address {{ ospf["router-id"] }}/29
+  address {{ ospf["router-address"] }}
   vlan-id {{ ospf["lnk-vlan"] }}
   vlan-raw-device bridge
 
