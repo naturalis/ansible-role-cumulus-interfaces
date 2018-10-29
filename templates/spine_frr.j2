@@ -31,6 +31,11 @@ ip route {{route}} {{routing["ospf"]["fw-carp-address"]}}
 !
 interface vlan{{ ospf["lnk-vlan"] }}
  ip ospf network broadcast
+ ip ospf cost 1
+ ip ospf hello-interval 10
+ ip ospf dead-interval 40
+ ip ospf retransmit-interval 5
+ ip ospf transmit-delay 1
 {% endif %}
 !
 line vty
