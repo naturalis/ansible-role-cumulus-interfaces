@@ -10,16 +10,11 @@ log syslog informational
 {% if ospf is defined %}
 router ospf
   ospf router-id {{ ospf["router-id"] }}
-  network {{ routing["ospf"]["network"] }} area 0.0.0.0
-  passive-interface default
-  no passive-interface vlan{{ ospf["lnk-vlan"] }}
-  {% for member in ospf["members"] -%}
-  no passive-interface {{ member }}
-  {% endfor %}
   log-adjacency-changes detail
-  auto-cost reference-bandwidth 100000
   timers throttle spf 5 100 500
   timers lsa min-arrival 50
+  network {{ routing["ospf"]["network"] }} area 0.0.0.0
+  redistribute static
 !
 ip forwarding
 !
