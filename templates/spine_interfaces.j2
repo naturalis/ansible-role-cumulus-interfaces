@@ -110,14 +110,14 @@ iface {{ port }}
 
 auto vlan{{ ospf["lnk-vlan"] }}
 iface vlan{{ ospf["lnk-vlan"] }}
-  address {{ ospf["router-id"] }}
+  address {{ ospf["router-id"] }}/29
   vlan-id {{ ospf["lnk-vlan"] }}
   vlan-raw-device bridge
 
 {% for port in ospf["members"] -%}
 auto {{ port }}
 iface {{ port }}
-  mtu 9000
+  mtu 1500
   bridge-pvid {{ ospf["lnk-vlan"] }}
 
 {% endfor %}
