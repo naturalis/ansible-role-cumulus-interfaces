@@ -5,9 +5,12 @@
 ###############
 # General
 ###############
+
+{% if lo is defined %}
 auto lo
 iface lo inet loopback
    address {{ lo }}
+{% endif %}
 
 auto eth0
 iface eth0 inet dhcp
@@ -25,17 +28,17 @@ iface mgmt
 auto bridge
 iface bridge
   bridge-vlan-aware yes
-  bridge-ports {{ ports | join(" ") }} peerlink glob swp1-48
-  bridge-vids {{ vlans | join(" ") }}
-
-  {% if bridge is defined %}
+  bridge-ports {{ aggregation_ports | join(" ") }} peerlink glob swp1-48
+  bridge-vids {{ vlans | sort | join(" ") }}
+{% if bridge is defined %}
   bridge-pvid {{ bridge["native"] }}
   bridge-stp on
-  {% if bridge["priority"] is defined %}
+{% if bridge["priority"] is defined %}
   mstpctl-treeprio {{ bridge["priority"] }}
-  {% endif %}
-  {% endif %}
+{% endif %}
+{% endif %}
 
+{% if ib_mgmt is defined %}
 ###############
 # In band mgmt
 ###############
@@ -45,12 +48,13 @@ iface vlan{{ib_mgmt}}
   address 10.{{ ib_mgmt }}.0.{{ lo | regex_replace('^10.255.255.(.*)$', '\\1') }}
   vlan-id {{ ib_mgmt }}
   vlan-raw-device bridge
+{% endif %}
 
+{% if mlag is defined %}
 ###############
 # MLAG
 ###############
 
-{% if mlag is defined %}
 auto peerlink
 iface peerlink
   bond-slaves {{ mlag["members"] | join(" ") }}
@@ -67,56 +71,72 @@ iface peerlink.4094
   {% endif %}
 {% endif %}
 
-###############
-# Client ports
-###############
+{% if aggregation_ports is defined %}
+####################
+# Aggregation ports
+####################
 
-{% if ports is defined %}
-{% for port in ports -%}
-
-{% if ports[port]["mlag"] %}
-{% for member in ports[port]["members"] -%}
+{% for p in aggregation_ports %}
+{% set port = aggregation_ports[p] %}
+{% if port["mlag"] is defined %}
+{% for member in port["members"] %}
 auto {{ member }}
 iface {{ member }}
+
+auto {{ p }}
+iface {{ p }}
+  mtu 9000
+  clag-id {{ port["mlag-id"] }}
+  bond-slaves {{ port["members"] | join(" ") }}
+
 {% endfor %}
 {% endif %}
+{% endfor %}
+{% endif %}
+###############
+# Access ports
+###############
+{# Update ifaces based on host_vars of the switch or use default port config -#}
 
-auto {{ port }}
-iface {{ port }}
-  mtu 9000
-  {% if ports[port]["alias"] is defined %}
-  alias {{ ports[port]["alias"] }}
-  {% endif %}
-  {% if ports[port]["mlag"] %}
-  clag-id {{ ports[port]["mlag-id"] }}
-  bond-slaves {{ ports[port]["members"] | join(" ") }}
-  {% else %}
-  mstpctl-bpduguard yes
-  mstpctl-portadminedge yes
-  {% endif %}
-  {% if ports[port]["trunk"] %}
-  {% if ports[port]["vlans"] is defined %}
-  bridge-vids {{ ports[port]["vlans"] | join(" ") }}
-  {% endif %}
-  {% if ports[port]["voip"] is defined %}
-  bridge-pvid {{ ports[port]["voip"]["data-vlan"] }}
-  bridge-vids {{ ports[port]["voip"]["voice-vlan"] }}
-  {% endif %}
-  {% else %}
-  bridge-access {{ ports[port]["vlan"] }}
-  {% endif %}
-
+{% set ifaces = {} %}
+{% for p in range(1, 49) %}
+{% if access_ports[p] is defined %}
+{% set port_config = access_ports[p] %}
+{% else %}
+{% set port_config = default_port_config %}
+{% endif %}
+{% do ifaces.update({p: port_config}) %}
 {% endfor %}
 
-{% for port in range(1,49) %}
+{#- Update ifaces based on host_vars of all hosts in all_hosts variable -#}
+
+{% for host in all_hosts %}
+{% if hostvars[host]['network_interfaces'] is defined %}
+{% for nic in hostvars[host]["network_interfaces"] %}
+{% if nic["switch"] is defined and nic["switch"] == inventory_hostname and
+nic["switch_port_config"] is defined and nic["switch_port"] is defined %}
+{% do ifaces.update(
+   {nic["switch_port"]: nic["switch_port_config"]}) %}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endfor %}
+
+{% for port, pc in ifaces.iteritems() %}
 {% set port_name = 'swp' + port|string %}
-{% if ports[port_name] is undefined %}
+{% set port_config = port_configs[pc] %}
 auto {{ port_name }}
 iface {{ port_name }}
+  mtu 9000
   mstpctl-bpduguard yes
   mstpctl-portadminedge yes
-  bridge-access {{ bridge["native"] }}
+{% if port_config["untagged"] is defined and port_config["tagged"] is undefined
+%}
+  bridge-access {{ port_config["untagged"] }}
+{% elif port_config["untagged"] is defined and port_config["tagged"] is defined
+  and port_config["tagged"]|length >= 1 %}
+  bridge-pvid {{ port_config["untagged"] }}
+  bridge-vids {{ port_config["tagged"] | join(" ") }}
 {% endif %}
-{% endfor %}
 
-{% endif %}
+{% endfor %}
