@@ -5,9 +5,12 @@
 ###############
 # General
 ###############
+
+{% if lo is defined %}
 auto lo
 iface lo inet loopback
    address {{ lo }}
+{% endif %}
 
 auto eth0
 iface eth0 inet dhcp
@@ -25,17 +28,16 @@ iface mgmt
 auto bridge
 iface bridge
   bridge-vlan-aware yes
-  bridge-ports {{ ports | join(" ") }} peerlink {% if ospf is defined %}{% for port in ospf["members"] -%} {{ port }} {% endfor %}{% endif %}
-
-  bridge-vids {{ vlans | join(" ") }} {% if ospf is defined %}{{ ospf["lnk-vlan"] }}{% endif %}
-
-  {% if bridge is defined %}
+  bridge-ports {{ aggregation_ports | join(" ") }} peerlink {% if ospf is defined %}{% for port in ospf["members"] -%} {{ port }} {% endfor %}{% endif %}
+  bridge-vids {{ vlans | sort | join(" ") }} {% if ospf is defined %}{{ ospf["lnk-vlan"] }}{% endif %}
+{% if bridge is defined %}
   bridge-stp on
-  {% if bridge["priority"] is defined %}
+{% if bridge["priority"] is defined %}
   mstpctl-treeprio {{ bridge["priority"] }}
-  {% endif %}
-  {% endif %}
+{% endif %}
+{% endif %}
 
+{% if ib_mgmt is defined %}
 ###############
 # In band mgmt
 ###############
@@ -45,12 +47,13 @@ iface vlan{{ib_mgmt}}
   address 10.{{ ib_mgmt }}.0.{{ lo | regex_replace('^10.255.255.(.*)$', '\\1') }}
   vlan-id {{ ib_mgmt }}
   vlan-raw-device bridge
+{% endif %}
 
+{% if mlag is defined %}
 ###############
 # MLAG
 ###############
 
-{% if mlag is defined %}
 auto peerlink
 iface peerlink
   bond-slaves {{ mlag["members"] | join(" ") }}
@@ -68,38 +71,26 @@ iface peerlink.4094
   clagd-args --initDelay 180
 {% endif %}
 
-###############
-# Client ports
-###############
+{% if aggregation_ports is defined %}
+####################
+# Aggregation ports
+####################
 
-{% if ports is defined %}
-{% for port in ports -%}
-
-{% if ports[port]["mlag"] %}
-{% for member in ports[port]["members"] -%}
+{% for p in aggregation_ports %}
+{% set port = aggregation_ports[p] %}
+{% if port["mlag"] is defined %}
+{% for member in port["members"] %}
 auto {{ member }}
 iface {{ member }}
+
+auto {{ p }}
+iface {{ p }}
+  mtu 9000
+  clag-id {{ port["mlag-id"] }}
+  bond-slaves {{ port["members"] | join(" ") }}
+
 {% endfor %}
 {% endif %}
-
-auto {{ port }}
-iface {{ port }}
-  mtu 9000
-  {% if ports[port]["alias"] is defined %}
-  alias {{ ports[port]["alias"] }}
-  {% endif %}
-  {% if ports[port]["mlag"] %}
-  clag-id {{ ports[port]["mlag-id"] }}
-  bond-slaves {{ ports[port]["members"] | join(" ") }}
-  {% endif %}
-  {% if ports[port]["trunk"] %}
-  {% if ports[port]["vlans"] is defined %}
-  bridge-vids {{ ports[port]["vlans"] | join(" ") }}
-  {% endif %}
-  {% else %}
-  bridge-access {{ ports[port]["vlan"] }}
-  {% endif %}
-
 {% endfor %}
 {% endif %}
 
