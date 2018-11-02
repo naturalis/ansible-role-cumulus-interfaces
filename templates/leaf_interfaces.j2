@@ -108,7 +108,9 @@ iface {{ p }}
 {% do ifaces.update({p: port_config}) %}
 {% endfor %}
 
-{#- Update ifaces based on host_vars of all hosts in all_hosts variable -#}
+{#- Update ifaces based on host_vars of all hosts -#}
+
+{% set all_hosts = query('inventory_hostnames', 'all') %}
 {% if all_hosts is defined %}
 {% for host in all_hosts %}
 {% if hostvars[host]['network_interfaces'] is defined %}
