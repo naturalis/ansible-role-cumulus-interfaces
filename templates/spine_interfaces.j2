@@ -29,7 +29,9 @@ auto bridge
 iface bridge
   bridge-vlan-aware yes
   bridge-ports {{ aggregation_ports | join(" ") }} peerlink {% if ospf is defined %}{% for port in ospf["members"] -%} {{ port }} {% endfor %}{% endif %}
+
   bridge-vids {{ vlans | sort | join(" ") }} {% if ospf is defined %}{{ ospf["lnk-vlan"] }}{% endif %}
+
 {% if bridge is defined %}
   bridge-stp on
 {% if bridge["priority"] is defined %}
@@ -76,22 +78,33 @@ iface peerlink.4094
 # Aggregation ports
 ####################
 
-{% for p in aggregation_ports %}
-{% set port = aggregation_ports[p] %}
-auto {{ p }}
-iface {{ p }}
+{% if aggregation_ports is defined %}
+{% for port in aggregation_ports -%}
+
+{% if aggregation_ports[port]["mlag"] %}
+{% for member in aggregation_ports[port]["members"] -%}
+auto {{ member }}
+iface {{ member }}
+{% endfor %}
+{% endif %}
+
+auto {{ port }}
+iface {{ port }}
   mtu 9000
-{% if port["mlag"] is defined %}
-  clag-id {{ port["mlag-id"] }}
-  bond-slaves {{ port["members"] | join(" ") }}
-{% endif %}
-{% if port["trunk"] %}
-{% if port["vlans"] is defined %}
-bridge-vids {{ port["vlans"] | join(" ") }}
-{% endif %}
-{% else %}
-bridge-access {{ port["vlan"] }}
-{% endif %}
+  {% if aggregation_ports[port]["alias"] is defined %}
+  alias {{ aggregation_ports[port]["alias"] }}
+  {% endif %}
+  {% if aggregation_ports[port]["mlag"] %}
+  clag-id {{ aggregation_ports[port]["mlag-id"] }}
+  bond-slaves {{ aggregation_ports[port]["members"] | join(" ") }}
+  {% endif %}
+  {% if aggregation_ports[port]["trunk"] %}
+  {% if aggregation_ports[port]["vlans"] is defined %}
+  bridge-vids {{ aggregation_ports[port]["vlans"] | join(" ") }}
+  {% endif %}
+  {% else %}
+  bridge-access {{ aggregation_ports[port]["vlan"] }}
+  {% endif %}
 
 {% endfor %}
 {% endif %}
