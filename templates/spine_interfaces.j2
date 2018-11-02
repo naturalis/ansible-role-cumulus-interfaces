@@ -78,19 +78,21 @@ iface peerlink.4094
 
 {% for p in aggregation_ports %}
 {% set port = aggregation_ports[p] %}
-{% if port["mlag"] is defined %}
-{% for member in port["members"] %}
-auto {{ member }}
-iface {{ member }}
-
 auto {{ p }}
 iface {{ p }}
   mtu 9000
+{% if port["mlag"] is defined %}
   clag-id {{ port["mlag-id"] }}
   bond-slaves {{ port["members"] | join(" ") }}
-
-{% endfor %}
 {% endif %}
+{% if port["trunk"] %}
+{% if port["vlans"] is defined %}
+bridge-vids {{ port["vlans"] | join(" ") }}
+{% endif %}
+{% else %}
+bridge-access {{ port["vlan"] }}
+{% endif %}
+
 {% endfor %}
 {% endif %}
 
