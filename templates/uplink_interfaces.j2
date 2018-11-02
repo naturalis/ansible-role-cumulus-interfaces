@@ -5,9 +5,12 @@
 ###############
 # General
 ###############
+
+{% if lo is defined %}
 auto lo
 iface lo inet loopback
    address {{ lo }}
+{% endif %}
 
 auto eth0
 iface eth0 inet dhcp
@@ -21,21 +24,20 @@ iface mgmt
 ###############
 # Bridge / Vlans
 ###############
+
 auto bridge
 iface bridge
   bridge-vlan-aware yes
-  bridge-ports {% if ospf is defined %}{% for port in ospf["members"] -%} {{ port }} {% endfor %}{% endif %}
-
-  bridge-vids {{ vlans | join(" ") }} {% if ospf is defined %}{{ ospf["lnk-vlan"] }}{% endif %}
-
-  {% if bridge is defined %}
-  bridge-pvid {{ bridge["native"] }}
+  bridge-ports {{ aggregation_ports | join(" ") }} peerlink {% if ospf is defined %}{% for port in ospf["members"] -%} {{ port }} {% endfor %}{% endif %}
+  bridge-vids {{ vlans | sort | join(" ") }} {% if ospf is defined %}{{ ospf["lnk-vlan"] }}{% endif %}
+{% if bridge is defined %}
   bridge-stp on
-  {% if bridge["priority"] is defined %}
+{% if bridge["priority"] is defined %}
   mstpctl-treeprio {{ bridge["priority"] }}
-  {% endif %}
-  {% endif %}
+{% endif %}
+{% endif %}
 
+{% if ib_mgmt is defined %}
 ###############
 # In band mgmt
 ###############
@@ -45,6 +47,7 @@ iface vlan{{ib_mgmt}}
   address 10.{{ ib_mgmt }}.0.{{ lo | regex_replace('^10.255.255.(.*)$', '\\1') }}
   vlan-id {{ ib_mgmt }}
   vlan-raw-device bridge
+{% endif %}
 
 {% if ospf is defined %}
 ###############
@@ -53,14 +56,14 @@ iface vlan{{ib_mgmt}}
 
 auto vlan{{ ospf["lnk-vlan"] }}
 iface vlan{{ ospf["lnk-vlan"] }}
-  address {{ ospf["router-id"] }}
+  address {{ ospf["router-address"] }}
   vlan-id {{ ospf["lnk-vlan"] }}
   vlan-raw-device bridge
 
 {% for port in ospf["members"] -%}
 auto {{ port }}
 iface {{ port }}
-  mtu 9000
+  mtu 1500
   bridge-pvid {{ ospf["lnk-vlan"] }}
 
 {% endfor %}
