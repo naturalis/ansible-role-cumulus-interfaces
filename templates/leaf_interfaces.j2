@@ -109,7 +109,7 @@ iface {{ p }}
 {% endfor %}
 
 {#- Update ifaces based on host_vars of all hosts in all_hosts variable -#}
-
+{% if all_hosts is defined %}
 {% for host in all_hosts %}
 {% if hostvars[host]['network_interfaces'] is defined %}
 {% for nic in hostvars[host]["network_interfaces"] %}
@@ -121,6 +121,7 @@ nic["switch_port_config"] is defined and nic["switch_port"] is defined %}
 {% endfor %}
 {% endif %}
 {% endfor %}
+{% endif %}
 
 {% for port, pc in ifaces.iteritems() %}
 {% set port_name = 'swp' + port|string %}
