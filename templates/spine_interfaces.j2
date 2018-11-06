@@ -78,7 +78,6 @@ iface peerlink.4094
 # Aggregation ports
 ####################
 
-{% if aggregation_ports is defined %}
 {% for port in aggregation_ports -%}
 
 {% if aggregation_ports[port]["mlag"] %}
