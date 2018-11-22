@@ -80,7 +80,7 @@ iface peerlink.4094
 
 {% for port in aggregation_ports -%}
 
-{% if aggregation_ports[port]["mlag"] %}
+{% if aggregation_ports[port]["mlag"] is defined %}
 {% for member in aggregation_ports[port]["members"] -%}
 auto {{ member }}
 iface {{ member }}
@@ -93,7 +93,7 @@ iface {{ port }}
   {% if aggregation_ports[port]["alias"] is defined %}
   alias {{ aggregation_ports[port]["alias"] }}
   {% endif %}
-  {% if aggregation_ports[port]["mlag"] %}
+  {% if aggregation_ports[port]["mlag"] is defined %}
   clag-id {{ aggregation_ports[port]["mlag-id"] }}
   bond-slaves {{ aggregation_ports[port]["members"] | join(" ") }}
   {% endif %}
