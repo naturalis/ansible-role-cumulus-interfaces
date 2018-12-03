@@ -19,12 +19,11 @@ router ospf
   redistribute static
   redistribute connected
 !
-ip forwarding
-!
-{% for route in vlans -%}
-ip route 10.{{route}}.0.0/16 {{ ospf[port]["fw-carp-address"] }}
 {% endfor %}
 !
+ip forwarding
+!
+{% for port in ospf -%}
 interface {{ port }}
  ip ospf network broadcast
  ip ospf cost 1
