@@ -21,50 +21,16 @@ iface mgmt
   address 127.0.0.1/8
   vrf-table auto
 
-###############
-# Bridge / Vlans
-###############
-
-auto bridge
-iface bridge
-  bridge-vlan-aware yes
-  bridge-ports {{ aggregation_ports | join(" ") }} peerlink {% if ospf is defined %}{% for port in ospf["members"] -%} {{ port }} {% endfor %}{% endif %}
-  bridge-vids {{ vlans | sort | join(" ") }} {% if ospf is defined %}{{ ospf["lnk-vlan"] }}{% endif %}
-{% if bridge is defined %}
-  bridge-stp on
-{% if bridge["priority"] is defined %}
-  mstpctl-treeprio {{ bridge["priority"] }}
-{% endif %}
-{% endif %}
-
-{% if ib_mgmt is defined %}
-###############
-# In band mgmt
-###############
-
-auto vlan{{ ib_mgmt }}
-iface vlan{{ib_mgmt}}
-  address 10.{{ ib_mgmt }}.0.{{ lo | regex_replace('^10.255.255.(.*)$', '\\1') }}
-  vlan-id {{ ib_mgmt }}
-  vlan-raw-device bridge
-{% endif %}
-
 {% if ospf is defined %}
 ###############
 # OSPF ports
 ###############
 
-auto vlan{{ ospf["lnk-vlan"] }}
-iface vlan{{ ospf["lnk-vlan"] }}
-  address {{ ospf["router-address"] }}
-  vlan-id {{ ospf["lnk-vlan"] }}
-  vlan-raw-device bridge
-
-{% for port in ospf["members"] -%}
+{% for port in ospf -%}
 auto {{ port }}
 iface {{ port }}
+  address {{ ospf[port]["router-address"] }}
   mtu 1500
-  bridge-pvid {{ ospf["lnk-vlan"] }}
 
 {% endfor %}
 {% endif %}

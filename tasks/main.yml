@@ -4,7 +4,7 @@
     src: daemons
     dest: /etc/frr/daemons
     backup: yes
-  when: "'spines' in group_names or 'uplink' in group_names"
+  when: "'spines' in group_names or 'uplinks' in group_names"
   notify: restart frr
   tags:
     - frr
@@ -14,7 +14,19 @@
     src: spine_frr.j2
     dest: /etc/frr/frr.conf
     backup: yes
-  when: "'spines' in group_names or 'uplink' in group_names"
+  when: "'spines' in group_names"
+  notify:
+    - reload networking
+    - reload frr
+  tags:
+    - frr
+
+- name: Copy FRR configuration
+  template:
+    src: uplink_frr.j2
+    dest: /etc/frr/frr.conf
+    backup: yes
+  when: "'uplinks' in group_names"
   notify:
     - reload networking
     - reload frr
