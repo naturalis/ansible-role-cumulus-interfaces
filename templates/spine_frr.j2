@@ -13,7 +13,7 @@ router ospf
   log-adjacency-changes detail
   timers throttle spf 5 100 500
   timers lsa min-arrival 50
-  network {{ routing["ospf"]["network"] }} area 0
+  network {{ ospf["network"] }} area 0
   redistribute kernel
   redistribute static
   redistribute connected
@@ -21,13 +21,8 @@ router ospf
 ip forwarding
 !
 {% for route in vlans -%}
-ip route 10.{{route}}.0.0/16 {{ routing["ospf"]["fw-carp-address"] }}
+ip route 10.{{route}}.0.0/16 {{ ospf["fw-carp-address"] }}
 {% endfor %}
-{% if routing["ospf"]["static-routes"] is defined %}
-{% for route in routing["ospf"]["static-routes"] -%}
-ip route {{route}} {{routing["ospf"]["fw-carp-address"]}}
-{% endfor %}
-{% endif %}
 !
 interface vlan{{ ospf["lnk-vlan"] }}
  ip ospf network broadcast
