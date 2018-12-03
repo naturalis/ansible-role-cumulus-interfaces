@@ -108,6 +108,29 @@ iface {{ port }}
 {% endfor %}
 {% endif %}
 
+{% if svi is defined %}
+###############
+# SVIs
+###############
+
+{% for vlan in svi -%}
+auto vlan{{vlan}}
+iface vlan{{vlan}}
+{% if mlag["primary"] is defined %}
+    {% if mlag["primary"] == true %}
+    address {{svi[vlan]["ipv4-1"]}}
+    {% else %}
+    address {{svi[vlan]["ipv4-2"]}}
+    {% endif %}
+{% endif %}
+    vlan-id {{vlan}}
+    vlan-raw-device bridge
+    address-virtual 00:00:5e:00:01:01 {{svi[vlan]["ipv4-virtual"]}}
+
+{% endfor %}
+{% endif %}
+
+
 {% if ospf is defined %}
 ###############
 # OSPF ports
