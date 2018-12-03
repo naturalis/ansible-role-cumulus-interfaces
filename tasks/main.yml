@@ -39,7 +39,7 @@
     dest: /etc/network/interfaces
     validate: ifup -a -s -i %s
     backup: yes
-  when: "'uplink' in group_names"
+  when: "'uplinks' in group_names"
   notify: reload networking
   tags:
     - interfaces

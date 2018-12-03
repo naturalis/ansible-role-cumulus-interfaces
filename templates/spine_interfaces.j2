@@ -28,9 +28,9 @@ iface mgmt
 auto bridge
 iface bridge
   bridge-vlan-aware yes
-  bridge-ports {{ aggregation_ports | join(" ") }} peerlink {% if ospf is defined %}{% for port in ospf["members"] -%} {{ port }} {% endfor %}{% endif %}
+  bridge-ports {{ aggregation_ports | join(" ") }} peerlink
 
-  bridge-vids {{ vlans | sort | join(" ") }} {% if ospf is defined %}{{ ospf["lnk-vlan"] }}{% endif %}
+  bridge-vids {{ vlans | sort | join(" ") }}
 
 {% if bridge is defined %}
   bridge-stp on
