@@ -23,7 +23,7 @@ router ospf
 ip forwarding
 !
 {% for route in vlans -%}
-ip route 10.{{route}}.0.0/16 {{ ospf[port]["fw-carp-address"] }}
+ip route 10.{{route}}.0.0/16 {{ fw_carp_address }}
 {% endfor %}
 !
 {% for port in ospf -%}

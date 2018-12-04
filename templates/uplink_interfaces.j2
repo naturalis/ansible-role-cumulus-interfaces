@@ -9,7 +9,7 @@
 {% if lo is defined %}
 auto lo
 iface lo inet loopback
-   address {{ lo }}
+   address {{ lo }}/32
 {% endif %}
 
 auto eth0
