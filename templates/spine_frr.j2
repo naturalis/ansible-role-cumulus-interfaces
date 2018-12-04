@@ -9,7 +9,7 @@ log syslog informational
 !
 {% if ospf is defined %}
 router ospf
-  ospf router-id {{ inventory_hostname }}
+  ospf router-id {{ lo }}
   log-adjacency-changes detail
   timers throttle spf 5 100 500
   timers lsa min-arrival 50
@@ -34,6 +34,7 @@ interface {{ port }}
  ip ospf dead-interval 40
  ip ospf retransmit-interval 5
  ip ospf transmit-delay 1
+!
 {% endfor %}
 {% endif %}
 !
