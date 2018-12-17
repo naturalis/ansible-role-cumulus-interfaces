@@ -29,9 +29,7 @@ auto bridge
 iface bridge
   bridge-vlan-aware yes
   bridge-ports {{ aggregation_ports | join(" ") }} peerlink
-
-  bridge-vids {{ vlans | sort | join(" ") }}
-
+  bridge-vids {{ vlans | sort | join(" ") }} {% if svi is defined %}{% for vlan in svi -%} {{ vlan }}{% endfor %}{% endif %} {% if ospf is defined %}{% for port in ospf -%}{% if ospf[port]["vlan"] is defined %}{{ ospf[port]["vlan"] }}{% endif %}{% endfor %}{% endif %}
 {% if bridge is defined %}
   bridge-stp on
 {% if bridge["priority"] is defined %}
@@ -98,9 +96,7 @@ iface {{ port }}
   bond-slaves {{ aggregation_ports[port]["members"] | join(" ") }}
   {% endif %}
   {% if aggregation_ports[port]["trunk"] %}
-  {% if aggregation_ports[port]["vlans"] is defined %}
-  bridge-vids {{ aggregation_ports[port]["vlans"] | join(" ") }}
-  {% endif %}
+  bridge-vids {{ vlans | sort | join(" ") }}
   {% else %}
   bridge-access {{ aggregation_ports[port]["vlan"] }}
   {% endif %}
@@ -139,8 +135,14 @@ iface vlan{{vlan}}
 {% for port in ospf -%}
 auto {{ port }}
 iface {{ port }}
+  {% if ospf[port]["vlan"] is defined %}
+  address {{ ospf[port]["router-address"] }}
+  vlan-id {{ ospf[port]["vlan"] }}
+  vlan-raw-device bridge
+  mtu 9000
+  {% else %}
   address {{ ospf[port]["router-address"] }}
   mtu 1500
-
+  {% endif %}
 {% endfor %}
 {% endif %}
