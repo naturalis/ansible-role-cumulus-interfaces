@@ -120,9 +120,12 @@ iface {{ port }}
   address {{ ospf[port]["router-address"] }}
   vlan-id {{ ospf[port]["vlan"] }}
   vlan-raw-device bridge
-  mtu 9000
   {% else %}
   address {{ ospf[port]["router-address"] }}
+  {% endif %}
+  {% if ospf[port]["mtu"] is defined %}
+  mtu {{ ospf[port]["mtu"] }}
+  {% else %}
   mtu 1500
   {% endif %}
 {% endfor %}
