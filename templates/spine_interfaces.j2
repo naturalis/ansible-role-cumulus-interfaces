@@ -38,18 +38,6 @@ iface bridge
 {% endif %}
 {% endif %}
 
-{% if ib_mgmt is defined %}
-###############
-# In band mgmt
-###############
-
-auto vlan{{ ib_mgmt }}
-iface vlan{{ib_mgmt}}
-  address 10.{{ ib_mgmt }}.0.{{ lo | regex_replace('^10.255.255.(.*)$', '\\1') }}
-  vlan-id {{ ib_mgmt }}
-  vlan-raw-device bridge
-{% endif %}
-
 {% if mlag is defined %}
 ###############
 # MLAG
