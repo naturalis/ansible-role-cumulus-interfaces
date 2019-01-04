@@ -55,13 +55,28 @@
   tags:
     - interfaces
 
-- name: Copy interfaces configuration for leafs
+- name: Copy interfaces configuration for leafs-prod
   template:
-    src: leaf_interfaces.j2
+    src: leaf_interfaces_prod.j2
     dest: /etc/network/interfaces
     validate: ifup -a -s -i %s
     backup: yes
-  when: "'leafs' in group_names"
+  when:
+    - env == "prod"
+    - "'leafs' in group_names"
+  notify: reload networking
+  tags:
+    - interfaces
+
+- name: Copy interfaces configuration for leafs-vx
+  template:
+    src: leaf_interfaces_vx.j2
+    dest: /etc/network/interfaces
+    validate: ifup -a -s -i %s
+    backup: yes
+  when:
+    - env == "staging"
+    - "'leafs' in group_names"
   notify: reload networking
   tags:
     - interfaces

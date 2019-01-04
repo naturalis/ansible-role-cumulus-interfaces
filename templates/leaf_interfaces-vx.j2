@@ -1,0 +1,145 @@
+###############
+# Ansible generated config, will be overwritten!
+###############
+
+###############
+# General
+###############
+
+{% if lo is defined %}
+auto lo
+iface lo inet loopback
+   address {{ lo }}/32
+{% endif %}
+
+auto eth0
+iface eth0 inet dhcp
+  vrf mgmt
+
+auto mgmt
+iface mgmt
+  address 127.0.0.1/8
+  vrf-table auto
+
+###############
+# Bridge / Vlans
+###############
+
+auto bridge
+iface bridge
+  bridge-vlan-aware yes
+  bridge-ports {{ aggregation_ports | join(" ") }} peerlink glob swp1-8
+  bridge-vids {{ vlans | sort | join(" ") }}
+{% if bridge is defined %}
+  bridge-pvid {{ bridge["native"] }}
+  bridge-stp on
+{% if bridge["priority"] is defined %}
+  mstpctl-treeprio {{ bridge["priority"] }}
+{% endif %}
+{% endif %}
+
+{% if ib_mgmt is defined %}
+###############
+# In band mgmt
+###############
+
+auto vlan{{ ib_mgmt }}
+iface vlan{{ib_mgmt}}
+  address 10.{{ ib_mgmt }}.0.{{ lo | regex_replace('^10.255.255.(.*)$', '\\1') }}
+  vlan-id {{ ib_mgmt }}
+  vlan-raw-device bridge
+{% endif %}
+
+{% if mlag is defined %}
+###############
+# MLAG
+###############
+
+auto peerlink
+iface peerlink
+  bond-slaves {{ mlag["members"] | join(" ") }}
+  mtu 9216
+
+auto peerlink.4094
+iface peerlink.4094
+  address {{ mlag["address"] }}
+  clagd-peer-ip {{ mlag["peer-ip"] }}
+  clagd-backup-ip {{ mlag["backup-ip"] }} vrf mgmt
+  clagd-sys-mac {{ mlag["sysmac"] }}
+  {% if mlag["priority"] is defined %}
+  clagd-priority {{ mlag["priority"] }}
+  {% endif %}
+{% endif %}
+
+{% if aggregation_ports is defined %}
+####################
+# Aggregation ports
+####################
+
+{% for p in aggregation_ports %}
+{% set port = aggregation_ports[p] %}
+{% if port["mlag"] is defined %}
+{% for member in port["members"] %}
+auto {{ member }}
+iface {{ member }}
+
+auto {{ p }}
+iface {{ p }}
+  mtu 9000
+  clag-id {{ port["mlag-id"] }}
+  bond-slaves {{ port["members"] | join(" ") }}
+
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endif %}
+###############
+# Access ports
+###############
+{# Update ifaces based on host_vars of the switch or use default port config -#}
+
+{% set ifaces = {} %}
+{% for p in range(1, 9) %}
+{% if access_ports[p] is defined %}
+{% set port_config = access_ports[p] %}
+{% else %}
+{% set port_config = default_port_config %}
+{% endif %}
+{% do ifaces.update({p: port_config}) %}
+{% endfor %}
+
+{#- Update ifaces based on host_vars of all hosts -#}
+
+{% set all_hosts = query('inventory_hostnames', 'all') %}
+{% if all_hosts is defined %}
+{% for host in all_hosts %}
+{% if hostvars[host]['network_interfaces'] is defined %}
+{% for nic in hostvars[host]["network_interfaces"] %}
+{% if nic["switch"] is defined and nic["switch"] == inventory_hostname and
+nic["switch_port_config"] is defined and nic["switch_port"] is defined %}
+{% do ifaces.update(
+   {nic["switch_port"]: nic["switch_port_config"]}) %}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endif %}
+
+{% for port, pc in ifaces.iteritems() %}
+{% set port_name = 'swp' + port|string %}
+{% set port_config = port_configs[pc] %}
+auto {{ port_name }}
+iface {{ port_name }}
+  mtu 9000
+  mstpctl-bpduguard yes
+  mstpctl-portadminedge yes
+{% if port_config["untagged"] is defined and port_config["tagged"] is undefined
+%}
+  bridge-access {{ port_config["untagged"] }}
+{% elif port_config["untagged"] is defined and port_config["tagged"] is defined
+  and port_config["tagged"]|length >= 1 %}
+  bridge-pvid {{ port_config["untagged"] }}
+  bridge-vids {{ port_config["tagged"] | join(" ") }}
+{% endif %}
+
+{% endfor %}
