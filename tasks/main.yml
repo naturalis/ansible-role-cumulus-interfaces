@@ -69,7 +69,7 @@
 
 - name: Copy interfaces configuration for leafs
   template:
-    src: leaf_interfaces.j2
+    src: leaf_interfaces_prod.j2
     dest: /etc/network/interfaces
     validate: ifup -a -s -i %s
     backup: yes
