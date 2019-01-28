@@ -7,14 +7,10 @@ service integrated-vtysh-config
 !
 log syslog informational
 !
-vrf mgmt
- ip route 0.0.0.0/0 {{ mgmt_gateway }}
- exit-vrf
-!
 {% if leaf_routes is defined %}
 vrf default
 {% for route in leaf_routes -%}
- ip route {{route}}
+  ip route {{route}}
 {% endfor %}
  exit-vrf
 {% endif %}

@@ -20,6 +20,7 @@ auto mgmt
 iface mgmt
   address 127.0.0.1/8
   vrf-table auto
+  post-up ip route add 0.0.0.0/0 via {{ mgmt_gateway }} vrf mgmt
 
 ###############
 # Bridge / Vlans
