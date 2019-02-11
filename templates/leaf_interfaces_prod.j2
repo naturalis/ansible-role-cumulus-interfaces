@@ -46,9 +46,10 @@ iface bridge
 
 auto vlan{{ ib_mgmt }}
 iface vlan{{ib_mgmt}}
-  address 10.{{ ib_mgmt }}.0.{{ lo | regex_replace('^10.255.255.(.*)$', '\\1') }}
+  address 10.{{ ib_mgmt }}.0.{{ lo | regex_replace('^10.255.255.(.*)$', '\\1') }}/16
   vlan-id {{ ib_mgmt }}
   vlan-raw-device bridge
+  post-up ip route add 0.0.0.0/0 via 10.114.0.1
 {% endif %}
 
 {% if mlag is defined %}
