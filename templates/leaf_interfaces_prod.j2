@@ -29,7 +29,7 @@ iface mgmt
 auto bridge
 iface bridge
   bridge-vlan-aware yes
-  bridge-ports {{ aggregation_ports | join(" ") }} peerlink glob swp1-48
+  bridge-ports {{ aggregation_ports | join(" ") }} {% if mlag is defined %}peerlink {% endif %}glob swp1-48
   bridge-vids {{ vlans | sort | join(" ") }}
 {% if bridge is defined %}
   bridge-pvid {{ bridge["native"] }}
@@ -84,15 +84,17 @@ iface peerlink.4094
 {% for member in port["members"] %}
 auto {{ member }}
 iface {{ member }}
+{% endfor %}
+{% endif %}
 
 auto {{ p }}
 iface {{ p }}
   mtu 9000
+{% if port["mlag"] is defined %}
   clag-id {{ port["mlag-id"] }}
+{% endif %}
   bond-slaves {{ port["members"] | join(" ") }}
 
-{% endfor %}
-{% endif %}
 {% endfor %}
 {% endif %}
 ###############
