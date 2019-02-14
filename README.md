@@ -20,9 +20,6 @@ ib_mgmt: 114
 leaf_routes:
   - 0.0.0.0/0 10.114.0.1
 fw_carp_address: xxx.xxx.xxx.xxx
-ptm:
-  - '"netdw2-spine-a1a":"swp47" -- "netdw2-spine-a1b":"swp47"'
-  - '"netdw2-spine-a1a":"swp48" -- "netdw2-spine-a1b":"swp48"'
 routing:
   ospf:
     network: xxx.xxx.xxx.xxx/29
