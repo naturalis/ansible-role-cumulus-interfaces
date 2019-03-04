@@ -9,60 +9,25 @@
   tags:
     - frr
 
-- name: Copy FRR configuration for spines
+- name: Copy FRR configuration
   template:
     src: spine_frr.j2
     dest: /etc/frr/frr.conf
     backup: yes
-  when: "'spines' in group_names"
+  when: "'spines' in group_names or 'uplinks' in group_names"
   notify:
     - reload networking
     - reload frr
   tags:
     - frr
 
-- name: Copy FRR configuration for (vx) uplinks
-  template:
-    src: uplink_frr.j2
-    dest: /etc/frr/frr.conf
-    backup: yes
-  when: "'uplinks' in group_names"
-  notify:
-    - reload networking
-    - reload frr
-  tags:
-    - frr
-
-- name: Copy FRR configuration for leafs
-  template:
-    src: leaf_frr.j2
-    dest: /etc/frr/frr.conf
-    backup: yes
-  when: "'leafs' in group_names"
-  notify:
-    - reload networking
-    - reload frr
-  tags:
-    - frr
-
-- name: Copy interfaces configuration for uplink
-  template:
-    src: uplink_interfaces.j2
-    dest: /etc/network/interfaces
-    validate: ifup -a -s -i %s
-    backup: yes
-  when: "'uplinks' in group_names"
-  notify: reload networking
-  tags:
-    - interfaces
-
-- name: Copy interfaces configuration for spines
+- name: Copy interfaces configuration for spines (or uplinks in vx)
   template:
     src: spine_interfaces.j2
     dest: /etc/network/interfaces
     validate: ifup -a -s -i %s
     backup: yes
-  when: "'spines' in group_names"
+  when: "'spines' in group_names or 'uplinks' in group_names"
   notify: reload networking
   tags:
     - interfaces
