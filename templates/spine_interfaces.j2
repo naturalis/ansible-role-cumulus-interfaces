@@ -30,8 +30,11 @@ auto bridge
 iface bridge
   bridge-vlan-aware yes
   bridge-ports {{ aggregation_ports | join(" ") }}{% if mlag is defined %} peerlink{% endif %}
+
   bridge-vids {{ vlans | sort | join(" ") }} {% if svi is defined %}{% for vlan in svi -%}{{ vlan }}{% endfor %}{% endif %}{% if ospf is defined %}{% for port in ospf -%}{% if ospf[port]["vlan"] is defined %} {{ ospf[port]["vlan"] }}{% endif %}{% endfor %}{% endif %}
+
   bridge-stp on
+  
 {% if bridge["priority"] is defined %}
   mstpctl-treeprio {{ bridge["priority"] }}
 {% endif %}
