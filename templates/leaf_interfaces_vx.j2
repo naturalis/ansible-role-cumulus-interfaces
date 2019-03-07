@@ -32,7 +32,6 @@ iface bridge
   bridge-ports {{ aggregation_ports | join(" ") }} {% if mlag is defined %}peerlink {% endif %}glob swp1-8
   bridge-vids {{ vlans | sort | join(" ") }}
 {% if bridge is defined %}
-  bridge-pvid {{ bridge["native"] }}
   bridge-stp on
 {% if bridge["priority"] is defined %}
   mstpctl-treeprio {{ bridge["priority"] }}
