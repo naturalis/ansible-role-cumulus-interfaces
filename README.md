@@ -76,9 +76,6 @@ svi:
   269:
     ipv4-virtual: xxx.xxx.xxx.xxx/29
     ipv4: xxx.xxx.xxx.xxx/29
-bridge:
-  native: 122
-  priority: 4096
 aggregation_ports:
   swp44:
     trunk: false
@@ -117,8 +114,6 @@ mlag:
   backup-ip: 192.168.144.24
   sysmac: 44:38:39:FF:FA:02
   priority: 4096
-bridge:
-  native: 122
 aggregation_ports:
   uplink:
     mlag: true
