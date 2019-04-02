@@ -1,13 +1,6 @@
 ###############
 # Ansible generated config, will be overwritten!
 ###############
-[enable]
-{% for port in range(1,49) %}
-{% set port_name = 'swp' + port|string %}
-{{ port_name }} = enable
-{% endfor %}
-
-[priority]
 {% set ifaces = {} %}
 {% for p in range(1, 49) %}
 {% if access_ports[p] is defined %}
@@ -34,9 +27,12 @@ nic["switch_port_config"] is defined and nic["switch_port"] is defined %}
 {% for port, pc in ifaces.iteritems() %}
 {% set port_name = 'swp' + port|string %}
 {% set port_config = port_configs[pc] %}
-{% if port_config["poe_prio"] is defined %}
-{{ port_name }} = {{ port_config["poe_prio"] }}
-{% else %}
-{{ port_name }} = low
+{% if port_config["qos"] is defined %}
+{% if port_config["untagged"] is defined and port_config["tagged"] is undefined %}
+configure ports {{ port_name }} med policy application {{ port_config["qos"] }} untagged vlan {{ port_config["untagged"] }} priority {{ port_config["qos"] }} dscp 46
+{% elif port_config["tagged"] is defined
+  and port_config["tagged"]|length >= 1 %}
+configure ports {{ port_name }} med policy application {{ port_config["qos"] }} tagged vlan {{ port_config["tagged"] | join(" ") }} priority {{ port_config["qos"] }} dscp 46
+{% endif %}
 {% endif %}
 {% endfor %}

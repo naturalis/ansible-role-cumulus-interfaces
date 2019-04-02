@@ -18,3 +18,8 @@
     enabled: yes
     state: restarted
     daemon_reload: yes
+
+- name: restart lldp
+  service:
+    name: lldp
+    state: restarted

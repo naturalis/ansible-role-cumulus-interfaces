@@ -68,6 +68,7 @@
   notify: restart poe
   tags:
    - interfaces
+   - poe
 
 - name: enable cumulus-poe
   systemd:
@@ -79,6 +80,7 @@
   notify: restart poe
   tags:
    - interfaces
+   - poe
 
 - name: Copy PoE configuration
   template:
@@ -91,3 +93,18 @@
   notify: restart poe
   tags:
     - interfaces
+    - poe
+
+- name: Copy QOS configuration
+  template:
+    src: leaf_qos.j2
+    dest: /etc/lldpd.d/qos_vlan.conf
+    backup: yes
+  when:
+    - env == "prod"
+    - "'leafs' in group_names"
+  notify: restart lldp
+  tags:
+    - interfaces
+    - lldp
+    - qos
