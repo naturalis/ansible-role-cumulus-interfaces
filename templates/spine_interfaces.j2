@@ -83,6 +83,9 @@ iface {{ port }}
   {% endif %}
   {% if aggregation_ports[port]["trunk"] %}
   bridge-vids {{ vlans | sort | join(" ") }}
+  {% if aggregation_ports[port]["vlan"] is defined %}
+  bridge-pvid {{ aggregation_ports[port]["vlan"] }}
+  {% endif %}
   {% else %}
   bridge-access {{ aggregation_ports[port]["vlan"] }}
   {% endif %}
