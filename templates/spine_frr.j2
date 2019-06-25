@@ -9,7 +9,7 @@ log syslog informational
 !
 {% if ospf is defined %}
 router ospf
-  ospf router-id {{ lo }}
+  ospf router-id {{ lo | regex_replace('/32') }}
   log-adjacency-changes detail
   timers throttle spf 5 100 500
   timers lsa min-arrival 50
