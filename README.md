@@ -1,6 +1,7 @@
 # Ansible Role: Cumulus interfaces
 
-This role will setup OSPF (FRR) on spine (and uplink) switches. Also the interfaces will be configured and PoE will be configured on leaf switches.
+This role will setup OSPF (FRR) on spine (and uplink) switches. Also the
+interfaces will be configured and PoE will be configured on leaf switches.
 
 Naturalis uses this role together with a private inventory.
 
