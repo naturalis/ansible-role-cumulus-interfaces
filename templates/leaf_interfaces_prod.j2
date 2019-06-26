@@ -119,9 +119,10 @@ iface {{ p }}
 {% if hostvars[host]['network_interfaces'] is defined %}
 {% for nic in hostvars[host]["network_interfaces"] %}
 {% if nic["switch"] is defined and nic["switch"] == inventory_hostname and
-nic["switch_port_config"] is defined and nic["switch_port"] is defined %}
+nic["switch_port"] is defined %}
 {% do ifaces.update(
-   {nic["switch_port"]: nic["switch_port_config"]}) %}
+   {nic["switch_port"]:
+   nic["switch_port_config"]|default(hostvars[host]['default_port_config'])}) %}
 {% endif %}
 {% endfor %}
 {% endif %}
