@@ -2,4 +2,5 @@
 mgmt_gateway: 192.168.144.8
 leaf_route: '0.0.0.0/0 10.114.0.1'
 ib_mgmt: 114
+default_port_config: bezoekers
 ...
