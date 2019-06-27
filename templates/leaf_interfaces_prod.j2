@@ -88,11 +88,7 @@ iface {{ member }}
 
 auto {{ p }}
 iface {{ p }}
-{% if aggregation_ports[port]["mtu"] is defined %}
-mtu {{ aggregation_ports[port]["mtu"] }}
-{% else %}
-mtu 1500
-{% endif %}
+  mtu 1500
 {% if port["mlag"] is defined %}
   clag-id {{ port["mlag-id"] }}
 {% endif %}
@@ -138,7 +134,7 @@ nic["switch_port"] is defined %}
 {% set port_config = port_configs[pc] %}
 auto {{ port_name }}
 iface {{ port_name }}
-  mtu 9000
+  mtu 1500
   mstpctl-bpduguard yes
   mstpctl-portadminedge yes
 {% if port_config["untagged"] is defined and port_config["tagged"] is undefined
