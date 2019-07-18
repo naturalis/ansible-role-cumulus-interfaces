@@ -71,9 +71,13 @@ iface {{ member }}
 {% endfor %}
 {% endif %}
 
-auto {{ port }}
-iface {{ port }}
-  mtu 9000
+  auto {{ port }}
+  iface {{ port }}
+  {% if aggregation_ports[port]["mtu"] is defined %}
+  mtu {{ aggregation_ports[port]["mtu"] }}
+  {% else %}
+  mtu 1500
+  {% endif %}
   {% if aggregation_ports[port]["alias"] is defined %}
   alias {{ aggregation_ports[port]["alias"] }}
   {% endif %}
