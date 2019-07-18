@@ -103,12 +103,13 @@ iface {{ p }}
 
 {% set ifaces = {} %}
 {% for p in range(1, 49) %}
-{% if access_ports[p] is defined %}
-{% set port_config = access_ports[p] %}
+{% set port_name = 'swp' + p|string %}
+{% if access_ports[port_name] is defined %}
+{% set port_config = access_ports[port_name] %}
 {% else %}
 {% set port_config = default_port_config %}
 {% endif %}
-{% do ifaces.update({p: port_config}) %}
+{% do ifaces.update({port_name: port_config}) %}
 {% endfor %}
 
 {#- Update ifaces based on host_vars of all hosts -#}
@@ -129,8 +130,7 @@ nic["switch_port"] is defined %}
 {% endfor %}
 {% endif %}
 
-{% for port, pc in ifaces.iteritems() %}
-{% set port_name = 'swp' + port|string %}
+{% for port_name, pc in ifaces.iteritems() %}
 {% set port_config = port_configs[pc] %}
 auto {{ port_name }}
 iface {{ port_name }}
