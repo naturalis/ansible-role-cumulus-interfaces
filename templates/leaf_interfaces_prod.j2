@@ -104,7 +104,7 @@ iface {{ p }}
 {% set ifaces = {} %}
 {% for p in range(1, 49) %}
 {% set port_name = 'swp' + p|string %}
-{% if port_name in access_ports %}
+{% if access_ports is not none and port_name in access_ports %}
 {% set port_config = access_ports[port_name] %}
 {% else %}
 {% set port_config = default_port_config %}
