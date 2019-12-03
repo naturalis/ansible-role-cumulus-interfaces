@@ -29,7 +29,7 @@ iface mgmt
 auto bridge
 iface bridge
   bridge-vlan-aware yes
-  bridge-ports {{ aggregation_ports | join(" ") }} {% if mlag is defined %}peerlink {% endif %}
+  bridge-ports {{ aggregation_ports | join(" ") }} {% if mlag is defined %}peerlink {% endif %} 
   bridge-vids {{ vlans | sort | join(" ") }}
 {% if bridge is defined %}
   bridge-stp on
