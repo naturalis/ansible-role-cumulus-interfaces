@@ -21,6 +21,7 @@ iface mgmt
   address 127.0.0.1/8
   vrf-table auto
 
+{% if aggregation_ports is defined %}
 ###############
 # Bridge / Vlans
 ###############
@@ -29,11 +30,9 @@ auto bridge
 iface bridge
   bridge-vlan-aware yes
   bridge-ports {{ aggregation_ports | join(" ") }}{% if mlag is defined %} peerlink{% endif %}
-
   bridge-vids {{ vlans | sort | join(" ") }} {% if svi is defined %}{% for vlan in svi -%}{{ vlan }}{% endfor %}{% endif %}{% if ospf is defined %}{% for port in ospf -%}{% if ospf[port]["vlan"] is defined %} {{ ospf[port]["vlan"] }}{% endif %}{% endfor %}{% endif %}
-
   bridge-stp on
-
+{% endif %}
 
 {% if mlag is defined %}
 ###############
