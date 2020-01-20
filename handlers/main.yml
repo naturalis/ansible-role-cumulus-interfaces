@@ -12,14 +12,14 @@
 - name: reload networking
   command: "ifreload -a"
 
-- name: restart poe
+- name: reload poe
   service:
     name: cumulus-poe
     enabled: yes
-    state: restarted
+    state: reloaded
     daemon_reload: yes
 
-- name: restart lldp
+- name: reload lldp
   service:
     name: lldpd
-    state: restarted
+    state: reloaded
