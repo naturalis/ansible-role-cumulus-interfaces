@@ -65,7 +65,7 @@
   when:
     - env == "prod"
     - "'leafs' in group_names"
-  notify: reload poe
+  notify: restart poe
   tags:
    - interfaces
    - poe
@@ -77,7 +77,7 @@
   when:
     - env == "prod"
     - "'leafs' in group_names"
-  notify: reload poe
+  notify: restart poe
   tags:
    - interfaces
    - poe
@@ -90,7 +90,7 @@
   when:
     - env == "prod"
     - "'leafs' in group_names"
-  notify: reload poe
+  notify: restart poe
   tags:
     - interfaces
     - poe
@@ -103,7 +103,7 @@
   when:
     - env == "prod"
     - "'leafs' in group_names"
-  notify: reload lldp
+  notify: restart lldp
   tags:
     - interfaces
     - lldp
