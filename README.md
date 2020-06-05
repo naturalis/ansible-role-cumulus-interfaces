@@ -15,7 +15,7 @@ Available variables are listed below, along with default values:
 
 An example would be:
 
-```bash
+```yaml
 #group_vars
 ib_mgmt: 114
 leaf_routes:
@@ -53,9 +53,9 @@ port_configs:
     untagged: 121
   visitors:
     untagged: 125
-```    
+```
 
-```bash
+```yaml
 #host_var for spine switch
 lo: 10.255.255.6
 ospf:
@@ -103,7 +103,7 @@ aggregation_ports:
     trunk: true
 ```
 
-```bash
+```yaml
 #host_var for leaf switch
 lo: 10.255.255.25
 mlag:
@@ -132,6 +132,12 @@ access_ports:
   1: servers
   2: office
 ```
+
+## Extra variables
+
+* `enable_omf`: By default this role disables Optimized Multicast Flooding /
+  Forwarding (OMF) also known as IGMP / MLD Snooping. You can enable it by
+  setting `enable_omf` to `yes`.
 
 ## Dependencies
 

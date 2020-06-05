@@ -37,6 +37,9 @@ iface bridge
   mstpctl-treeprio {{ bridge["priority"] }}
 {% endif %}
 {% endif %}
+{% if not enable_omf | default(False) | bool %}
+  bridge-mcsnoop 0
+{% endif %}
 
 {% if ib_mgmt is defined %}
 ###############

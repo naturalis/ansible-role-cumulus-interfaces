@@ -26,7 +26,7 @@ nic["switch_port_config"] is defined and nic["switch_port"] is defined %}
 {% endif %}
 {% endfor %}
 {% endif %}
-{% for port_name, pc in ifaces.iteritems() %}
+{% for port_name, pc in ifaces.items() | list %}
 {% set port_config = port_configs[pc] %}
 {% if port_config["poe_state"] is defined %}
 {{ port_name }} = {{ port_config["poe_state"] }}
@@ -60,7 +60,7 @@ nic["switch_port_config"] is defined and nic["switch_port"] is defined %}
 {% endif %}
 {% endfor %}
 {% endif %}
-{% for port_name, pc in ifaces.iteritems() %}
+{% for port_name, pc in ifaces.items() | list %}
 {% set port_config = port_configs[pc] %}
 {% if port_config["poe_prio"] is defined %}
 {{ port_name }} = {{ port_config["poe_prio"] }}

@@ -37,6 +37,10 @@ iface bridge
   mstpctl-treeprio {{ bridge["priority"] }}
 {% endif %}
 {% endif %}
+{% if not enable_omf | default(False) | bool %}
+  bridge-mcsnoop 0
+{% endif %}
+
 
 {% if ib_mgmt is defined %}
 ###############
@@ -130,7 +134,7 @@ nic["switch_port"] is defined %}
 {% endfor %}
 {% endif %}
 
-{% for port_name, pc in ifaces.iteritems() %}
+{% for port_name, pc in ifaces.items() | list %}
 {% set port_config = port_configs[pc] %}
 auto {{ port_name }}
 iface {{ port_name }}
