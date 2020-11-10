@@ -9,18 +9,18 @@
 {% if lo is defined %}
 auto lo
 iface lo inet loopback
-   address {{ lo }}
+    address {{ lo }}
 {% endif %}
 
 auto eth0
 iface eth0 inet dhcp
-  vrf mgmt
+    vrf mgmt
 
 auto mgmt
 iface mgmt
-  address 127.0.0.1/8
-  vrf-table auto
-  post-up ip route add 0.0.0.0/0 via {{ mgmt_gateway }} vrf mgmt
+    address 127.0.0.1/8
+    vrf-table auto
+    post-up ip route add 0.0.0.0/0 via {{ mgmt_gateway }} vrf mgmt
 
 ###############
 # Bridge / Vlans
@@ -28,17 +28,17 @@ iface mgmt
 
 auto bridge
 iface bridge
-  bridge-vlan-aware yes
-  bridge-ports {{ aggregation_ports | join(" ") }} {% if mlag is defined %}peerlink {% endif %} 
-  bridge-vids {{ vlans | sort | join(" ") }}
+    bridge-vlan-aware yes
+    bridge-ports {% if mlag is defined %}peerlink {% endif %}{{ aggregation_ports | join(' ') }}
+    bridge-vids {{ vlans | sort | join(' ') }}
 {% if bridge is defined %}
-  bridge-stp on
-{% if bridge["priority"] is defined %}
-  mstpctl-treeprio {{ bridge["priority"] }}
+    bridge-stp on
+{%   if bridge.priority is defined %}
+    mstpctl-treeprio {{ bridge.priority }}
+{%   endif %}
 {% endif %}
-{% endif %}
-{% if not enable_omf | default(False) | bool %}
-  bridge-mcsnoop 0
+{% if not enable_omf | default(false) | bool %}
+    bridge-mcsnoop 0
 {% endif %}
 
 {% if ib_mgmt is defined %}
@@ -48,10 +48,10 @@ iface bridge
 
 auto vlan{{ ib_mgmt }}
 iface vlan{{ib_mgmt}}
-  address 10.{{ ib_mgmt }}.0.{{ lo | regex_replace('^10.114.10.(.*)(/.*)', '\\1') }}/16
-  vlan-id {{ ib_mgmt }}
-  vlan-raw-device bridge
-  post-up ip route add {{ leaf_route }}
+    address 10.{{ ib_mgmt }}.0.{{ lo | regex_replace('^10.114.10.(.*)(/.*)', '\\1') }}/16
+    vlan-id {{ ib_mgmt }}
+    vlan-raw-device bridge
+    post-up ip route add {{ leaf_route }}
 {% endif %}
 
 {% if mlag is defined %}
@@ -61,18 +61,18 @@ iface vlan{{ib_mgmt}}
 
 auto peerlink
 iface peerlink
-  bond-slaves {{ mlag["members"] | join(" ") }}
-  mtu 9216
+    bond-slaves {{ mlag.members | join(' ') }}
+    mtu 9216
 
 auto peerlink.4094
 iface peerlink.4094
-  address {{ mlag["address"] }}
-  clagd-peer-ip {{ mlag["peer-ip"] }}
-  clagd-backup-ip {{ mlag["backup-ip"] }} vrf mgmt
-  clagd-sys-mac {{ mlag["sysmac"] }}
-  {% if mlag["priority"] is defined %}
-  clagd-priority {{ mlag["priority"] }}
-  {% endif %}
+    address {{ mlag.address }}
+    clagd-peer-ip {{ mlag.peer_ip }}
+    clagd-backup-ip {{ mlag.backup_ip }} vrf mgmt
+    clagd-sys-mac {{ mlag.sysmac }}
+{%   if mlag.priority is defined %}
+    clagd-priority {{ mlag.priority }}
+{%   endif %}
 {% endif %}
 
 {% if aggregation_ports is defined %}
@@ -80,24 +80,24 @@ iface peerlink.4094
 # Aggregation ports
 ####################
 
-{% for p in aggregation_ports %}
-{% set port = aggregation_ports[p] %}
-{% if port["mlag"] is defined %}
-{% for member in port["members"] %}
+{%   for p in aggregation_ports %}
+{%     set port = aggregation_ports[p] %}
+{%     if port.mlag is defined %}
+{%       for member in port.members %}
 auto {{ member }}
 iface {{ member }}
-{% endfor %}
-{% endif %}
+{%       endfor %}
+{%     endif %}
 
 auto {{ p }}
 iface {{ p }}
-  mtu 1500
-{% if port["mlag"] is defined %}
-  clag-id {{ port["mlag-id"] }}
-{% endif %}
-  bond-slaves {{ port["members"] | join(" ") }}
+    mtu 1500
+{%     if port.mlag is defined %}
+    clag-id {{ port.mlag_id }}
+{%     endif %}
+    bond-slaves {{ port.members | join(" ") }}
 
-{% endfor %}
+{%   endfor %}
 {% endif %}
 ###############
 # Access ports
