@@ -3,7 +3,7 @@
   copy:
     src: daemons
     dest: /etc/frr/daemons
-    backup: yes
+    backup: true
   when: "'spines' in group_names or 'uplinks' in group_names"
   notify: restart frr
   tags:
@@ -13,7 +13,7 @@
   template:
     src: spine_frr.j2
     dest: /etc/frr/frr.conf
-    backup: yes
+    backup: true
   when: "'spines' in group_names or 'uplinks' in group_names"
   notify:
     - reload networking
@@ -26,7 +26,7 @@
     src: spine_interfaces.j2
     dest: /etc/network/interfaces
     validate: ifup -a -s -i %s
-    backup: yes
+    backup: true
   when: "'spines' in group_names or 'uplinks' in group_names"
   notify: reload networking
   tags:
@@ -37,7 +37,7 @@
     src: leaf_interfaces_prod.j2
     dest: /etc/network/interfaces
     validate: ifup -a -s -i %s
-    backup: yes
+    backup: true
   when:
     - env == "prod"
     - "'leafs' in group_names"
@@ -50,7 +50,7 @@
     src: leaf_interfaces_vx.j2
     dest: /etc/network/interfaces
     validate: ifup -a -s -i %s
-    backup: yes
+    backup: true
   when:
     - env == "staging"
     - "'leafs' in group_names"
@@ -67,26 +67,26 @@
     - "'leafs' in group_names"
   notify: restart poe
   tags:
-   - interfaces
-   - poe
+    - interfaces
+    - poe
 
 - name: enable cumulus-poe
   systemd:
-    enabled: yes
+    enabled: true
     name: cumulus-poe
   when:
     - env == "prod"
     - "'leafs' in group_names"
   notify: restart poe
   tags:
-   - interfaces
-   - poe
+    - interfaces
+    - poe
 
 - name: Copy PoE configuration
   template:
     src: leaf_poe.j2
     dest: /etc/cumulus/poe.conf
-    backup: yes
+    backup: true
   when:
     - env == "prod"
     - "'leafs' in group_names"
@@ -99,7 +99,7 @@
   template:
     src: leaf_qos.j2
     dest: /etc/lldpd.d/qos_vlan.conf
-    backup: yes
+    backup: true
   when:
     - env == "prod"
     - "'leafs' in group_names"

@@ -9,17 +9,17 @@
 {% if lo is defined %}
 auto lo
 iface lo inet loopback
-  address {{ lo }}
+    address {{ lo }}
 {% endif %}
 
 auto eth0
 iface eth0 inet dhcp
-  vrf mgmt
+    vrf mgmt
 
 auto mgmt
 iface mgmt
-  address 127.0.0.1/8
-  vrf-table auto
+    address 127.0.0.1/8
+    vrf-table auto
 
 {% if aggregation_ports is defined %}
 ###############
@@ -28,10 +28,10 @@ iface mgmt
 
 auto bridge
 iface bridge
-  bridge-vlan-aware yes
-  bridge-ports {{ aggregation_ports | join(" ") }}{% if mlag is defined %} peerlink{% endif %}
-  bridge-vids {{ vlans | sort | join(" ") }} {% if svi is defined %}{% for vlan in svi -%}{{ vlan }}{% endfor %}{% endif %}{% if ospf is defined %}{% for port in ospf -%}{% if ospf[port]["vlan"] is defined %} {{ ospf[port]["vlan"] }}{% endif %}{% endfor %}{% endif %}
-  bridge-stp on
+    bridge-vlan-aware yes
+    bridge-ports {% if mlag is defined %}peerlink {% endif %}{{ aggregation_ports | join(' ') }}
+    bridge-vids {% if svi is defined %}{% for vlan in svi %}{{ vlan }}{% endfor %}{% endif %}{% if ospf is defined %}{% for port in ospf %}{% if ospf[port].vlan is defined %} {{ ospf[port].vlan }}{% endif %}{% endfor %}{% endif %} {{ vlans | sort | join(' ') }}
+    bridge-stp on
 {% endif %}
 
 {% if mlag is defined %}
@@ -41,19 +41,19 @@ iface bridge
 
 auto peerlink
 iface peerlink
-  bond-slaves {{ mlag["members"] | join(" ") }}
-  mtu 9216
+    bond-slaves {{ mlag.members | join(' ') }}
+    mtu 9216
 
 auto peerlink.4094
 iface peerlink.4094
-  address {{ mlag["address"] }}
-  clagd-peer-ip {{ mlag["peer-ip"] }}
-  clagd-backup-ip {{ mlag["backup-ip"] }} vrf mgmt
-  clagd-sys-mac {{ mlag["sysmac"] }}
-  {% if mlag["priority"] is defined %}
-  clagd-priority {{ mlag["priority"] }}
-  {% endif %}
-  clagd-args --initDelay 180
+    address {{ mlag.address }}
+    clagd-peer-ip {{ mlag.peer_ip }}
+    clagd-backup-ip {{ mlag.backup_ip }} vrf mgmt
+    clagd-sys-mac {{ mlag.sysmac }}
+{%   if mlag.priority is defined %}
+    clagd-priority {{ mlag.priority }}
+{%   endif %}
+    clagd-args --initDelay 180
 {% endif %}
 
 {% if aggregation_ports is defined %}
@@ -61,54 +61,52 @@ iface peerlink.4094
 # Aggregation ports
 ####################
 
-{% for port in aggregation_ports -%}
-
-{% if aggregation_ports[port]["mlag"] is defined %}
-{% for member in aggregation_ports[port]["members"] -%}
+{%   for port in aggregation_ports %}
+{%     if aggregation_ports[port].mlag is defined %}
+{%       for member in aggregation_ports[port].members %}
 auto {{ member }}
 iface {{ member }}
-{% endfor %}
+{%       endfor %}
+
+{%     endif %}
+auto {{ port }}
+iface {{ port }}
+{%     if aggregation_ports[port].mtu is defined %}
+    mtu {{ aggregation_ports[port].mtu }}
+{%     else %}
+    mtu 1500
+{%     endif %}
+{%     if aggregation_ports[port].alias is defined %}
+    alias {{ aggregation_ports[port].alias }}
+{%     endif %}
+{%     if aggregation_ports[port].mlag is defined %}
+    clag-id {{ aggregation_ports[port].mlag_id }}
+    bond-slaves {{ aggregation_ports[port].members | join(' ') }}
+{%     endif %}
+{%     if aggregation_ports[port].trunk %}
+    bridge-vids {{ vlans | sort | join(' ') }}
+{%       if aggregation_ports[port].vlan is defined %}
+    bridge-pvid {{ aggregation_ports[port].vlan }}
+{%       endif %}
+{%     else %}
+    bridge-access {{ aggregation_ports[port].vlan }}
+{%     endif %}
+
+{%   endfor %}
 {% endif %}
-
-  auto {{ port }}
-  iface {{ port }}
-  {% if aggregation_ports[port]["mtu"] is defined %}
-  mtu {{ aggregation_ports[port]["mtu"] }}
-  {% else %}
-  mtu 1500
-  {% endif %}
-  {% if aggregation_ports[port]["alias"] is defined %}
-  alias {{ aggregation_ports[port]["alias"] }}
-  {% endif %}
-  {% if aggregation_ports[port]["mlag"] is defined %}
-  clag-id {{ aggregation_ports[port]["mlag-id"] }}
-  bond-slaves {{ aggregation_ports[port]["members"] | join(" ") }}
-  {% endif %}
-  {% if aggregation_ports[port]["trunk"] %}
-  bridge-vids {{ vlans | sort | join(" ") }}
-  {% if aggregation_ports[port]["vlan"] is defined %}
-  bridge-pvid {{ aggregation_ports[port]["vlan"] }}
-  {% endif %}
-  {% else %}
-  bridge-access {{ aggregation_ports[port]["vlan"] }}
-  {% endif %}
-
-{% endfor %}
-{% endif %}
-
 {% if svi is defined %}
 ###############
 # SVIs
 ###############
 
-{% for vlan in svi -%}
-auto vlan{{vlan}}
-iface vlan{{vlan}}
-  address {{svi[vlan]["ipv4"]}}
-  vlan-id {{vlan}}
-  vlan-raw-device bridge
-  address-virtual 00:00:5e:00:01:01 {{svi[vlan]["ipv4-virtual"]}}
-{% endfor %}
+{%   for vlan in svi %}
+auto vlan{{ vlan }}
+iface vlan{{ vlan }}
+    address {{ svi[vlan].ipv4 }}
+    vlan-id {{ vlan }}
+    vlan-raw-device bridge
+    address-virtual 00:00:5e:00:01:01 {{ svi[vlan].ipv4_virtual }}
+{%   endfor %}
 {% endif %}
 
 {% if ospf is defined %}
@@ -116,21 +114,21 @@ iface vlan{{vlan}}
 # OSPF ports
 ###############
 
-{% for port in ospf -%}
+{%   for port in ospf %}
 auto {{ port }}
 iface {{ port }}
-  {% if ospf[port]["vlan"] is defined %}
-  address {{ ospf[port]["router-address"] }}
-  vlan-id {{ ospf[port]["vlan"] }}
-  vlan-raw-device bridge
-  {% else %}
-  address {{ ospf[port]["router-address"] }}
-  {% endif %}
-  {% if ospf[port]["mtu"] is defined %}
-  mtu {{ ospf[port]["mtu"] }}
-  {% else %}
-  mtu 1500
-  {% endif %}
+{%     if ospf[port].vlan is defined %}
+    address {{ ospf[port].router_address }}
+    vlan-id {{ ospf[port].vlan }}
+    vlan-raw-device bridge
+{%     else %}
+    address {{ ospf[port].router_address }}
+{%     endif %}
+{%     if ospf[port].mtu is defined %}
+    mtu {{ ospf[port].mtu }}
+{%     else %}
+    mtu 1500
+{%     endif %}
 
-{% endfor %}
+{%   endfor %}
 {% endif %}

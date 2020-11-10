@@ -18,36 +18,23 @@ An example would be:
 ```yaml
 #group_vars
 ib_mgmt: 114
-leaf_routes:
-  - 0.0.0.0/0 10.114.0.1
 fw_carp_address: xxx.xxx.xxx.xxx
-routing:
-  ospf:
-    network: xxx.xxx.xxx.xxx/29
-    fw-carp-address: xxx.xxx.xxx.xxx
-    static-routes:
-    - 10.141.0.0/16
-    - 10.142.0.0/16
+default_port_config: visitors
 vlans:
   114:
     name: Management
-    ipv4-virtual: 10.114.0.1/24
-    ipv4-1: 10.114.0.2/24
-    ipv4-2: 10.114.0.3/24
+    subnet: 10.114.0.0/24
   115:
     name: Servers
-    ipv4-virtual: 10.115.0.1/24
-    ipv4-1: 10.115.0.2/24
-    ipv4-2: 10.115.0.3/24
+    subnet: 10.115.0.0/24
 
-default_port_config: visitors
 port_configs:
   servers:
     untagged: 115
   office:
     untagged: 119
     tagged:
-    - 120
+      - 120
     qos: high
   printer:
     untagged: 121
@@ -61,21 +48,21 @@ lo: 10.255.255.6
 ospf:
   vlan267:
     vlan: 267
-    router-address: xxx.xxx.xxx.xxx/30
+    router_address: xxx.xxx.xxx.xxx/30
     network: 'xxx.xxx.xxx.xxx/30'
 mlag:
   primary: true
   members:
-  - swp47
-  - swp48
+    - swp47
+    - swp48
   address: 169.254.1.1/30
-  peer-ip: 169.254.1.2
-  backup-ip: 192.168.144.7
+  peer_ip: 169.254.1.2
+  backup_ip: 192.168.144.7
   sysmac: 44:38:39:FF:FA:01
   priority: 4096
 svi:
   269:
-    ipv4-virtual: xxx.xxx.xxx.xxx/29
+    ipv4_virtual: xxx.xxx.xxx.xxx/29
     ipv4: xxx.xxx.xxx.xxx/29
 aggregation_ports:
   swp44:
@@ -91,15 +78,15 @@ aggregation_ports:
     alias: firewall-inside
   ser-a3:
     mlag: true
-    mlag-id: 1
+    mlag_id: 1
     members:
-    - swp1
+      - swp1
     trunk: true
   ser-a4:
     mlag: true
-    mlag-id: 2
+    mlag_id: 2
     members:
-    - swp2
+      - swp2
     trunk: true
 ```
 
@@ -109,24 +96,24 @@ lo: 10.255.255.25
 mlag:
   primary: true
   members:
-  - swp50
+    - swp50
   address: 169.254.1.1/30
-  peer-ip: 169.254.1.2
-  backup-ip: 192.168.144.24
+  peer_ip: 169.254.1.2
+  backup_ip: 192.168.144.24
   sysmac: 44:38:39:FF:FA:02
   priority: 4096
 aggregation_ports:
   uplink:
     mlag: true
-    mlag-id: 1
+    mlag_id: 1
     members:
-    - swp52
+      - swp52
     trunk: true
   downlink:
     mlag: true
-    mlag-id: 2
+    mlag_id: 2
     members:
-    - swp49
+      - swp49
     trunk: true
 access_ports:
   1: servers
