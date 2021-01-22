@@ -22,8 +22,8 @@
 # that can be changed via /etc/frr/daemons.conf.
 #
 zebra=yes
-bgpd=no
-ospfd=yes
+bgpd={{ bgp | default(false) | ternary('yes', 'no') }}
+ospfd={{ ospf | default(false) | ternary('yes', 'no') }}
 ospf6d=no
 ripd=no
 ripngd=no
