@@ -44,7 +44,7 @@ router bgp {{ bgp.asn }}
 {%   for neighbor in bgp.neighbors %}
  neighbor {{ neighbor.address }} remote-as {{ neighbor.asn }}
 {%   endfor %}
- distance bgp 112 112 112
+ distance bgp 112 200 200
  !
  address-family ipv4 unicast
   redistribute connected
