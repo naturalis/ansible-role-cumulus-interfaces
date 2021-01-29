@@ -1,7 +1,7 @@
 ---
 - name: Copy FRR daemons file
-  copy:
-    src: daemons
+  template:
+    src: daemons.j2
     dest: /etc/frr/daemons
     backup: true
   when: "'spines' in group_names or 'uplinks' in group_names"

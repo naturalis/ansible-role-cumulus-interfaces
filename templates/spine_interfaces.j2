@@ -132,3 +132,20 @@ iface {{ port }}
 
 {%   endfor %}
 {% endif %}
+
+{% if bgp is defined %}
+###############
+# BGP ports
+###############
+{%   for port in bgp.ports %}
+
+auto {{ port.name }}
+iface {{ port.name }}
+    address {{ port.subnet }}
+{%     if port.mtu is defined %}
+    mtu {{ port.mtu }}
+{%     else %}
+    mtu 1500
+{%     endif %}
+{%   endfor %}
+{% endif %}

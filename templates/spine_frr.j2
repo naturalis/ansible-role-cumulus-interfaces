@@ -9,16 +9,16 @@ log syslog informational
 !
 {% if ospf is defined %}
 router ospf
-  ospf router-id {{ lo | regex_replace('/32') }}
-  log-adjacency-changes detail
-  timers throttle spf 5 100 500
-  timers lsa min-arrival 50
-  {% for port in ospf -%}
-  network {{ ospf[port]["network"] }} area 0
-  {% endfor %}
-  redistribute kernel
-  redistribute static
-  redistribute connected
+ ospf router-id {{ lo | regex_replace('/32') }}
+ log-adjacency-changes detail
+ timers throttle spf 5 100 500
+ timers lsa min-arrival 50
+{%   for port in ospf %}
+ network {{ ospf[port]["network"] }} area 0
+{%   endfor %}
+ redistribute kernel
+ redistribute static
+ redistribute connected
 !
 ip forwarding
 !
@@ -36,6 +36,22 @@ interface {{ port }}
  ip ospf transmit-delay 1
 !
 {% endfor %}
+{% endif %}
+{% if bgp is defined %}
+router bgp {{ bgp.asn }}
+ bgp router-id {{ lo | regex_replace('/32') }}
+ neighbor peerlink.4094 interface remote-as internal
+{%   for neighbor in bgp.neighbors %}
+ neighbor {{ neighbor.address }} remote-as {{ neighbor.asn }}
+{%   endfor %}
+ distance bgp 112 200 200
+ !
+ address-family ipv4 unicast
+  redistribute connected
+  redistribute static
+ exit-address-family
+ !
+!
 {% endif %}
 !
 line vty
