@@ -65,13 +65,17 @@ svi:
     ipv4_virtual: xxx.xxx.xxx.xxx/29
     ipv4: xxx.xxx.xxx.xxx/29
 aggregation_ports:
+  swp41:
+    untagged: 13
+    tagged:
+      - 14
+      - 15
+    alias: server
   swp44:
-    trunk: false
-    vlan: 267
+    untagged: 267
     alias: uplink
   swp45:
-    trunk: false
-    vlan: 269
+    untagged: 269
     alias: firewall-outside
   swp46:
     trunk: true

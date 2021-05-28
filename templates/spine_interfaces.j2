@@ -83,13 +83,13 @@ iface {{ port }}
     clag-id {{ aggregation_ports[port].mlag_id }}
     bond-slaves {{ aggregation_ports[port].members | join(' ') }}
 {%     endif %}
-{%     if aggregation_ports[port].trunk %}
+{%     if aggregation_ports[port].untagged is defined and aggregation_ports[port].tagged is undefined %}
+    bridge-access {{ aggregation_ports[port].untagged }}
+{%     elif aggregation_ports[port].tagged is defined and aggregation_ports[port].tagged|length >= 1 %}
+    bridge-pvid {{ aggregation_ports[port].untagged | default('2') }}
+    bridge-vids {{ aggregation_ports[port].tagged | join(' ') }}
+{%     elif aggregation_ports[port].trunk is defined and aggregation_ports[port].trunk is sameas true %}
     bridge-vids {{ vlans | sort | join(' ') }}
-{%       if aggregation_ports[port].vlan is defined %}
-    bridge-pvid {{ aggregation_ports[port].vlan }}
-{%       endif %}
-{%     else %}
-    bridge-access {{ aggregation_ports[port].vlan }}
 {%     endif %}
 
 {%   endfor %}
