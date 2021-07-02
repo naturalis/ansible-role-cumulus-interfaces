@@ -34,12 +34,12 @@ interface {{ port }}
 ip forwarding
 !
 {% if (vlans is defined and vlans | length) or (static_routes is defined and static_routes | length) %}
-{%   if vlans | length %}
+{%   if vlans is defined and vlans | length %}
 {%     for vlan in vlans %}
 ip route {{ vlans[vlan]["subnet"] }} {{ fw_carp_address }}
 {%     endfor %}
 {%   endif %}
-{%   if static_routes | length %}
+{%   if static_routes is defined and static_routes | length %}
 {%     for route in static_routes %}
 ip route {{ route.network }} {{ route.gateway }}
 {%     endfor %}
@@ -62,5 +62,4 @@ router bgp {{ bgp.asn }}
  !
 !
 {% endif %}
-!
 line vty
