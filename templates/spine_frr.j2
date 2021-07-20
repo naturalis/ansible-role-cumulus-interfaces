@@ -20,12 +20,6 @@ router ospf
  redistribute static
  redistribute connected
 !
-ip forwarding
-!
-{% for vlan in vlans -%}
-ip route {{ vlans[vlan]["subnet"] }} {{ fw_carp_address }}
-{% endfor %}
-!
 {% for port in ospf -%}
 interface {{ port }}
  ip ospf network broadcast
@@ -36,6 +30,21 @@ interface {{ port }}
  ip ospf transmit-delay 1
 !
 {% endfor %}
+{% endif %}
+ip forwarding
+!
+{% if (vlans is defined and vlans | length) or (static_routes is defined and static_routes | length) %}
+{%   if vlans is defined and vlans | length %}
+{%     for vlan in vlans %}
+ip route {{ vlans[vlan]["subnet"] }} {{ fw_carp_address }}
+{%     endfor %}
+{%   endif %}
+{%   if static_routes is defined and static_routes | length %}
+{%     for route in static_routes %}
+ip route {{ route.network }} {{ route.gateway }}
+{%     endfor %}
+{%   endif %}
+!
 {% endif %}
 {% if bgp is defined %}
 router bgp {{ bgp.asn }}
@@ -53,5 +62,4 @@ router bgp {{ bgp.asn }}
  !
 !
 {% endif %}
-!
 line vty
